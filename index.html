@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habilidade Que Vence 🐼</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>Habilidade Que Vence 🐼</h1>
+        </div>
+        <div class="user-panel">
+            <span id="user-saldo">Saldo: R$ 0,50</span>
+            <button onclick="abrirModal('modal-depositar')" class="btn-verde">Depositar (Mín. R$ 0,50)</button>
+            <button onclick="abrirModal('modal-sacar')" class="btn-amarelo">Sacar (Domingos)</button>
+            <a href="admin.html" class="btn-admin" id="link-admin" style="display:none;">Painel Admin</a>
+            <a href="https://chat.whatsapp.com/IAJfImmgqqz2Ea41KOX0vD" target="_blank" class="btn-whatsapp">
+                <i class="fab fa-whatsapp"></i> Grupo VIP
+            </a>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="banner-desafio">
+            <h2>🐼 Desafio da Diretoria Sra Panda! 🐼</h2>
+            <p>Jogue contra seus aliados, mostre sua estratégia e conquiste o dinheiro acumulado! Partidas a partir de <strong>R$ 0,50</strong> (Mínimo 4 participantes).</p>
+        </section>
+
+        <section class="lote-partidas">
+            <h3>Salas de Jogos Clássicos (4+ Participantes)</h3>
+            <div class="card-sala">
+                <div>
+                    <h4>Sala Estratégia #1 (Valendo em Real)</h4>
+                    <p>Investimento: R$ 0,50 | Prêmio Acumulado: R$ 2,00+</p>
+                    <p>Participantes confirmados: <span id="contador-players">1</span>/4</p>
+                </div>
+                <button onclick="entrarNaSala(0.50)" class="btn-primario">Entrar na Partida (R$ 0,50)</button>
+            </div>
+        </section>
+
+        <section class="chat-container">
+            <h3>Chat da Partida (Anti-Fraude Ativo)</h3>
+            <div id="chat-mensagens">
+                <div class="msg-sistema">Sistema Anti-Hacker e Antifraude ativado. Boa sorte aos participantes!</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="input-chat" placeholder="Converse com seu oponente...">
+                <button onclick="enviarMensagem()" class="btn-primario">Enviar</button>
+            </div>
+        </section>
+
+        <section class="indicacao-container">
+            <h3>Seu Link de Indicação (Ganhe 8% de comissão)</h3>
+            <p>Compartilhe seu link e ganhe 8% de tudo o que seus indicados depositarem:</p>
+            <input type="text" id="link-afiliado" readonly value="https://habilidadequevence.com/register.html?ref=USER123">
+            <button onclick="copiarLink()" class="btn-primario">Copiar Link</button>
+        </section>
+    </main>
+
+    <!-- Modal Depósito PIX Automático -->
+    <div id="modal-depositar" class="modal">
+        <div class="modal-conteudo">
+            <span onclick="fecharModal('modal-depositar')" class="fechar">&times;</span>
+            <h2>Depósito Automático PIX</h2>
+            <p>Valor mínimo: R$ 0,50</p>
+            <input type="number" id="valor-deposito" placeholder="0.50" min="0.50" step="0.50" value="0.50">
+            <button onclick="realizarDeposito()" class="btn-verde">Gerar PIX API</button>
+        </div>
+    </div>
+
+    <!-- Modal Saque (Apenas Domingos, Mínimo R$ 10, Taxa 10%) -->
+    <div id="modal-sacar" class="modal">
+        <div class="modal-conteudo">
+            <span onclick="fecharModal('modal-sacar')" class="fechar">&times;</span>
+            <h2>Solicitar Saque Automático</h2>
+            <p>Mínimo: R$ 10,00 | Taxa: 10%</p>
+            <p style="color: #eab308; font-size: 0.85rem;">⚠️ Saques liberados exclusivamente aos DOMINGOS.</p>
+            <input type="number" id="valor-saque" placeholder="10.00" min="10.00">
+            <button onclick="realizarSaque()" class="btn-amarelo">Solicitar Saque API</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
