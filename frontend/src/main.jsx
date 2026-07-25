@@ -1,11 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import App from './App.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <div>
-      <h1>Habilidade que Vence</h1>
-      <p>Site no ar com sucesso!</p>
-    </div>
+    <App />
   </React.StrictMode>,
 )
