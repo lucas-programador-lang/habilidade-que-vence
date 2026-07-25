@@ -1,0 +1,183 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #0f172a;
+    color: #f8fafc;
+}
+
+header {
+    background-color: #1e293b;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #334155;
+}
+
+.logo h1 {
+    font-size: 1.4rem;
+    color: #38bdf8;
+}
+
+.user-panel {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#user-saldo {
+    font-weight: bold;
+    color: #4ade80;
+    font-size: 1.1rem;
+}
+
+button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+button:hover { opacity: 0.85; }
+
+.btn-verde { background-color: #22c55e; color: white; }
+.btn-amarelo { background-color: #eab308; color: white; }
+.btn-primario { background-color: #3b82f6; color: white; }
+.btn-perigo { background-color: #ef4444; color: white; }
+.btn-whatsapp { background-color: #25d366; color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px; font-size: 0.9rem;}
+
+.container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.banner-desafio, .lote-partidas, .chat-container, .indicacao-container {
+    background-color: #1e293b;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid #334155;
+    margin-bottom: 1.5rem;
+}
+
+.banner-desafio { text-align: center; }
+.banner-desafio h2 { color: #38bdf8; margin-bottom: 8px; }
+
+.card-sala {
+    background-color: #0f172a;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #334155;
+}
+
+#chat-mensagens {
+    height: 140px;
+    background-color: #0f172a;
+    border-radius: 6px;
+    padding: 10px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    border: 1px solid #334155;
+    font-size: 0.9rem;
+}
+
+.msg-sistema { color: #94a3b8; font-style: italic; margin-bottom: 4px; }
+
+.chat-input-area, .indicacao-container input {
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input-area input, .indicacao-container input, .admin-box input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #475569;
+    background: #0f172a;
+    color: white;
+}
+
+.indicacao-container input { margin: 10px 0; }
+
+/* Autenticação */
+.auth-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.auth-container {
+    background-color: #1e293b;
+    padding: 2.5rem;
+    border-radius: 12px;
+    width: 350px;
+    border: 1px solid #475569;
+    text-align: center;
+}
+
+.auth-container h2 { color: #38bdf8; margin-bottom: 1.5rem; }
+
+.auth-container input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    border: 1px solid #475569;
+    background: #0f172a;
+    color: white;
+}
+
+.auth-container button { width: 100%; padding: 10px; }
+
+.auth-links { margin-top: 15px; font-size: 0.9rem; }
+.auth-links a { color: #38bdf8; text-decoration: none; }
+
+/* Modais */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-conteudo {
+    background-color: #1e293b;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 340px;
+    text-align: center;
+    position: relative;
+    border: 1px solid #475569;
+}
+
+.modal-conteudo input {
+    width: 100%;
+    padding: 10px;
+    margin: 15px 0;
+    border-radius: 6px;
+    border: 1px solid #475569;
+    background: #0f172a;
+    color: white;
+}
+
+.fechar {
+    position: absolute;
+    top: 10px; right: 15px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #94a3b8;
+}
