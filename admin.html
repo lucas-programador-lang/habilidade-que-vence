@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Administrador - Habilidade Que Vence</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo"><h1>Painel Administrativo 🐼</h1></div>
+        <div><a href="index.html" class="btn-primario" style="text-decoration:none;">Voltar ao Site</a></div>
+    </header>
+
+    <main class="container">
+        <section class="lote-partidas">
+            <h3>Gerenciamento de Usuários</h3>
+            <div class="admin-box">
+                <input type="email" id="admin-email-busca" placeholder="E-mail do usuário">
+                <div style="margin-top: 10px; display: flex; gap: 10px;">
+                    <input type="number" id="admin-novo-saldo" placeholder="Novo Saldo (R$)">
+                    <button onclick="adminAlterarSaldo()" class="btn-verde">Alterar Saldo</button>
+                </div>
+                <div style="margin-top: 10px; display: flex; gap: 10px;">
+                    <input type="password" id="admin-nova-senha" placeholder="Nova Senha">
+                    <button onclick="adminAlterarSenha()" class="btn-amarelo">Alterar Senha</button>
+                </div>
+                <div style="margin-top: 15px;">
+                    <button onclick="adminExcluirConta()" class="btn-perigo">Excluir Conta do Usuário</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
