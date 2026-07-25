@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Habilidade Que Vence 🐼</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
+    <div class="auth-container">
+        <h2>🐼 Criar Conta</h2>
+        <form onsubmit="fazerCadastro(event)">
+            <input type="text" id="cad-nome" placeholder="Nome Completo" required>
+            <input type="email" id="cad-email" placeholder="E-mail" required>
+            <input type="password" id="cad-senha" placeholder="Senha" required>
+            <input type="text" id="cad-indicacao" placeholder="Código de Indicação (Opcional)">
+            <button type="submit" class="btn-verde">Cadastrar</button>
+        </form>
+        <div class="auth-links">
+            <a href="login.html">Já tem uma conta? Entre aqui</a>
+        </div>
+    </div>
+    <script src="auth.js"></script>
+</body>
+</html>
