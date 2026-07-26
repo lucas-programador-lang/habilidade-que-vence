@@ -3,22 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Habilidade Que Vence 🐼</title>
+    <title>Login - Habilidade Que Vence</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="auth-body">
-    <div class="auth-container">
-        <h2>🐼 Habilidade Que Vence</h2>
-        <form onsubmit="fazerLogin(event)">
-            <input type="email" id="login-email" placeholder="E-mail" required>
-            <input type="password" id="login-senha" placeholder="Senha" required>
-            <button type="submit" class="btn-primario">Entrar</button>
-        </form>
-        <div class="auth-links">
-            <a href="register.html">Criar conta</a> | 
-            <a href="#" onclick="esqueciSenha()">Esqueci minha senha</a>
+    <main class="auth-container">
+        <div class="auth-logo">
+            <i class="fa-solid fa-chess-knight logo-icon"></i>
+            <h2>Habilidade Que Vence</h2>
         </div>
-    </div>
+
+        <form onsubmit="fazerLogin(event)" novalidate>
+            <div class="input-icon-group">
+                <input type="email" id="login-email" placeholder="E-mail" autocomplete="email" required>
+                <i class="fa-solid fa-envelope"></i>
+            </div>
+
+            <div class="input-icon-group">
+                <input type="password" id="login-senha" placeholder="Senha" autocomplete="current-password" required>
+                <i class="fa-solid fa-lock"></i>
+            </div>
+
+            <button type="submit" class="btn-primario">
+                <i class="fa-solid fa-right-to-bracket"></i> Entrar
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <a href="register.html"><i class="fa-solid fa-user-plus"></i> Criar conta</a>
+            <span class="auth-links-separador">•</span>
+            <a href="#" onclick="esqueciSenha()"><i class="fa-solid fa-key"></i> Esqueci minha senha</a>
+        </div>
+    </main>
     <script src="auth.js"></script>
 </body>
 </html>
