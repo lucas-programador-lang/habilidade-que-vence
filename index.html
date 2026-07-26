@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Habilidade Que Vence 🐼</title>
+    <script>
+        // Guarda de acesso: roda antes de qualquer coisa renderizar.
+        // Sem sessão salva -> manda pra tela de login (replace pra não
+        // deixar essa página no histórico do "voltar" do navegador).
+        // Isso é proteção de UX, não segurança: quem editar o
+        // localStorage manualmente ainda entra. Validação real só
+        // existe com um backend checando a sessão de verdade.
+        if (!localStorage.getItem('usuarioLogado')) {
+            window.location.replace('login.html');
+        }
+    </script>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
