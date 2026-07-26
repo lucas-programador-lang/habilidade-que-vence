@@ -783,3 +783,136 @@ button:active {
     max-width: 1040px;
   }
 }
+
+/* ============================================================
+   Fechamento animado dos modais (classe aplicada via JS antes
+   de setar display: none, pra não "sumir" abruptamente)
+   ============================================================ */
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes modal-pop-out {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to   { opacity: 0; transform: scale(0.94) translateY(8px); }
+}
+
+.modal.fechando {
+  animation: fade-out 0.18s var(--ease) forwards;
+}
+
+.modal.fechando .modal-conteudo {
+  animation: modal-pop-out 0.18s var(--ease) forwards;
+}
+
+/* --- Modal de confirmação (gerado dinamicamente pelo JS) --- */
+
+.confirm-mensagem {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  text-align: left;
+  margin-bottom: 4px;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.confirm-actions button {
+  width: auto;
+  flex: 1;
+  justify-content: center;
+}
+
+/* ============================================================
+   Toast notifications
+   ============================================================ */
+
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: min(360px, calc(100vw - 40px));
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-left: 3px solid var(--action);
+  box-shadow: 0 12px 32px -12px #000000a0;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  line-height: 1.4;
+  transform: translateX(120%);
+  opacity: 0;
+  transition: transform 0.3s var(--ease), opacity 0.3s var(--ease);
+}
+
+.toast.toast-visivel {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toast-icon {
+  font-size: 1.05rem;
+  margin-top: 1px;
+}
+
+.toast-fechar {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9rem;
+  margin-left: auto;
+}
+
+.toast-fechar:hover {
+  color: var(--text-primary);
+}
+
+.toast-sucesso { border-left-color: var(--ok); }
+.toast-sucesso .toast-icon { color: var(--ok); }
+
+.toast-erro { border-left-color: var(--danger); }
+.toast-erro .toast-icon { color: var(--danger); }
+
+.toast-aviso { border-left-color: var(--warn); }
+.toast-aviso .toast-icon { color: var(--warn); }
+
+.toast-info { border-left-color: var(--action-2); }
+.toast-info .toast-icon { color: var(--action-2); }
+
+@media (max-width: 480px) {
+  .toast-container {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    max-width: none;
+  }
+
+  .toast {
+    transform: translateY(120%);
+  }
+
+  .toast.toast-visivel {
+    transform: translateY(0);
+  }
+}
