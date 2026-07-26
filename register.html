@@ -3,23 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro - Habilidade Que Vence 🐼</title>
+    <title>Criar Conta - Habilidade Que Vence</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="auth-body">
-    <div class="auth-container">
-        <h2>🐼 Criar Conta</h2>
-        <form onsubmit="fazerCadastro(event)">
-            <input type="text" id="cad-nome" placeholder="Nome Completo" required>
-            <input type="email" id="cad-email" placeholder="E-mail" required>
-            <input type="password" id="cad-senha" placeholder="Senha" required>
-            <input type="text" id="cad-indicacao" placeholder="Código de Indicação (Opcional)">
-            <button type="submit" class="btn-verde">Cadastrar</button>
-        </form>
-        <div class="auth-links">
-            <a href="login.html">Já tem uma conta? Entre aqui</a>
+    <main class="auth-container">
+        <div class="auth-logo">
+            <i class="fa-solid fa-user-shield logo-icon"></i>
+            <h2>Criar Conta</h2>
+            <p class="auth-subtitulo">Cadastre-se e entre na sua primeira sala em minutos.</p>
         </div>
-    </div>
+
+        <form onsubmit="fazerCadastro(event)" novalidate>
+            <div class="input-icon-group">
+                <input type="text" id="cad-nome" placeholder="Nome completo" autocomplete="name" required>
+                <i class="fa-solid fa-user"></i>
+            </div>
+
+            <div class="input-icon-group">
+                <input type="email" id="cad-email" placeholder="E-mail" autocomplete="email" required>
+                <i class="fa-solid fa-envelope"></i>
+            </div>
+
+            <div class="input-icon-group">
+                <input type="password" id="cad-senha" placeholder="Senha" autocomplete="new-password" required>
+                <i class="fa-solid fa-lock"></i>
+            </div>
+
+            <div class="input-icon-group">
+                <input type="text" id="cad-indicacao" placeholder="Código de indicação (opcional)" autocomplete="off">
+                <i class="fa-solid fa-ticket"></i>
+            </div>
+
+            <button type="submit" class="btn-verde">
+                <i class="fa-solid fa-user-plus"></i> Cadastrar
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <a href="login.html"><i class="fa-solid fa-arrow-right-to-bracket"></i> Já tem uma conta? Entre aqui</a>
+        </div>
+    </main>
     <script src="auth.js"></script>
 </body>
 </html>
