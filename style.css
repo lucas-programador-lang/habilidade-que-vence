@@ -1,37 +1,41 @@
 /* ============================================================
-   HABILIDADE QUE VENCE — Design System
-   Arena escura de duelos por pontos, com dinheiro real em jogo.
-   Paleta separa "dinheiro" (dourado, saldo/pote) de "ação"
-   (violeta-azulado, botões e foco) — nada de azul-céu genérico.
+   HABILIDADE QUE VENCE — Design System (Obsidian / Glass)
+   Dashboard de duelos com dinheiro real: dinheiro (dourado) e
+   ação (violeta-azulado) como as duas cores de assinatura;
+   tudo o mais fica quieto ao redor delas.
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* --- Cor: base --- */
-  --bg: #0a0d14;
-  --bg-elevated: #10141d;
-  --surface: #161b26;
-  --surface-hover: #1c2230;
-  --border: #262e3d;
-  --border-strong: #34405640;
+  /* --- Base obsidian --- */
+  --bg: #07090d;
+  --bg-elevated: #0e121a;
+  --surface: #141926;
+  --surface-hover: #1a2130;
+  --border: #232b3a;
+  --border-strong: #34405670;
 
-  /* --- Cor: texto --- */
+  /* --- Vidro (glassmorphism) --- */
+  --glass-bg: rgba(20, 25, 38, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.07);
+  --glass-blur: 18px;
+
+  /* --- Texto --- */
   --text-primary: #f2f4f8;
   --text-secondary: #a7b0c0;
   --text-muted: #6b7688;
 
-  /* --- Cor: assinatura (dinheiro x ação) --- */
+  /* --- Assinatura: dinheiro x ação --- */
   --money: #f2b84b;
-  --money-glow: #f2b84b55;
-  --money-dim: #caa668;
+  --money-glow: #f2b84b4d;
   --action: #7c6cff;
   --action-2: #4f9dff;
   --action-glow: #7c6cff4d;
 
-  /* --- Cor: semântica dos botões --- */
+  /* --- Semântica --- */
   --ok: #34d399;
-  --ok-dark: #1f9d73;
+  --ok-dark: #1a9e73;
   --warn: #f2b84b;
   --warn-dark: #c9922e;
   --primary: #4f7dff;
@@ -45,7 +49,6 @@
   --radius-md: 14px;
   --radius-lg: 20px;
   --container-max: 900px;
-  --gap: 1.25rem;
 
   /* --- Tipografia --- */
   --font-display: 'Chakra Petch', 'Segoe UI', sans-serif;
@@ -74,6 +77,11 @@
   font-family: var(--font-body);
 }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
 body {
   background:
     radial-gradient(ellipse 900px 500px at 50% -10%, #1a1440 0%, transparent 60%),
@@ -83,16 +91,17 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Foco visível e consistente em qualquer elemento interativo */
 a:focus-visible,
 button:focus-visible,
-input:focus-visible {
+input:focus-visible,
+label:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--action-glow), 0 0 0 1px var(--action);
+  border-radius: var(--radius-sm);
 }
 
 /* ============================================================
-   Animações de entrada
+   Animações
    ============================================================ */
 
 @keyframes fade-slide-up {
@@ -105,50 +114,69 @@ input:focus-visible {
   to   { opacity: 1; }
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 18px 0 var(--money-glow); }
-  50%      { box-shadow: 0 0 30px 4px var(--money-glow); }
+@keyframes modal-pop {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes pulse-money {
+  0%, 100% { text-shadow: 0 0 10px var(--money-glow); }
+  50%      { text-shadow: 0 0 22px var(--money-glow); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 0 #34d39966; }
+  50%      { box-shadow: 0 0 0 5px #34d39900; }
 }
 
 .banner-desafio,
 .lote-partidas,
 .chat-container,
 .indicacao-container,
-.auth-container,
 .card-sala {
   animation: fade-slide-up 0.5s var(--ease) both;
 }
 
 /* ============================================================
-   Header
+   Header & navegação
    ============================================================ */
 
 header {
-  background: linear-gradient(180deg, var(--bg-elevated) 0%, #0d111a 100%);
+  background: linear-gradient(180deg, var(--bg-elevated) 0%, #0a0d14 100%);
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 1rem;
   border-bottom: 1px solid var(--border);
   position: relative;
 }
 
-/* Fio de luz sutil sob o header — a "linha da arena" */
 header::after {
   content: '';
   position: absolute;
   left: 0; right: 0; bottom: -1px;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--action) 40%, var(--money) 60%, transparent);
-  opacity: 0.5;
+  opacity: 0.55;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  color: var(--action-2);
+  font-size: 1.3rem;
 }
 
 .logo h1 {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.35rem;
+  font-size: 1.3rem;
   letter-spacing: 0.02em;
   background: linear-gradient(135deg, #ffffff 0%, var(--action-2) 100%);
   -webkit-background-clip: text;
@@ -156,22 +184,85 @@ header::after {
   color: transparent;
 }
 
+/* Toggle mobile — checkbox escondido controla o painel via CSS */
+.nav-toggle-input {
+  display: none;
+}
+
+.nav-toggle-label {
+  display: none;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.nav-toggle-label:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+.nav-toggle-input:checked + .nav-toggle-label i {
+  transform: rotate(90deg);
+}
+
+.nav-toggle-label i {
+  transition: var(--transition);
+}
+
 .user-panel {
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
-/* Saldo tratado como placar: numérico, tabular, com glow dourado sutil */
+/* Sub-painel financeiro: saldo + ações agrupados num bloco de vidro */
+.finance-panel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  padding: 8px 8px 8px 16px;
+  border-radius: 999px;
+  flex-wrap: wrap;
+}
+
+.finance-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.header-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Saldo como placar: numérico, com glow dourado pulsante */
 #user-saldo {
   font-family: var(--font-display);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--money);
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   letter-spacing: 0.02em;
-  text-shadow: 0 0 16px var(--money-glow);
+  white-space: nowrap;
+  animation: pulse-money 2.6s ease-in-out infinite;
+}
+
+#user-saldo i {
+  margin-right: 4px;
 }
 
 /* ============================================================
@@ -179,16 +270,19 @@ header::after {
    ============================================================ */
 
 button {
-  padding: 10px 18px;
+  padding: 10px 16px;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-weight: 600;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   letter-spacing: 0.01em;
   color: white;
   transition: var(--transition);
-  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
 }
 
 button:hover {
@@ -220,6 +314,26 @@ button:active {
   box-shadow: 0 4px 14px -4px #ef5a6f55;
 }
 
+.btn-admin {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.btn-admin:hover {
+  color: var(--text-primary);
+  border-color: var(--action);
+}
+
 .btn-whatsapp {
   background: var(--whatsapp);
   color: white;
@@ -228,8 +342,8 @@ button:active {
   border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.88rem;
+  gap: 7px;
+  font-size: 0.85rem;
   font-weight: 600;
   transition: var(--transition);
 }
@@ -241,7 +355,7 @@ button:active {
 }
 
 /* ============================================================
-   Container & painéis
+   Container & painéis (com leve efeito de vidro)
    ============================================================ */
 
 .container {
@@ -259,13 +373,16 @@ button:active {
   padding: 1.75rem;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border);
-  margin-bottom: var(--gap);
+  margin-bottom: 1.25rem;
   transition: var(--transition);
 }
 
 .banner-desafio {
   text-align: center;
   border-color: var(--border-strong);
+  background:
+    linear-gradient(180deg, var(--surface) 0%, var(--bg-elevated) 100%),
+    radial-gradient(circle at 50% 0%, #7c6cff22, transparent 60%);
 }
 
 .banner-desafio h2 {
@@ -273,63 +390,185 @@ button:active {
   color: var(--action-2);
   margin-bottom: 10px;
   font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-/* Sala/duelo — grid para não quebrar em telas estreitas */
+.lote-partidas h3,
+.chat-container h3,
+.indicacao-container h3 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  font-size: 1.05rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.lote-partidas h3 i,
+.chat-container h3 i,
+.indicacao-container h3 i {
+  color: var(--action-2);
+}
+
+/* --- Badges --- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.badge-open {
+  background: #34d39922;
+  color: var(--ok);
+  border: 1px solid #34d39944;
+}
+
+.badge-open i {
+  font-size: 0.5rem;
+  animation: pulse-dot 1.8s ease-in-out infinite;
+  color: var(--ok);
+}
+
+.badge-shield {
+  background: #4f9dff1a;
+  color: var(--action-2);
+  border: 1px solid #4f9dff40;
+  font-size: 0.7rem;
+}
+
+.badge-money {
+  background: #f2b84b22;
+  color: var(--money);
+  border: 1px solid #f2b84b44;
+}
+
+/* --- Sala de duelo --- */
+
 .card-sala {
   background: var(--bg-elevated);
-  padding: 1rem 1.25rem;
+  padding: 1.1rem 1.3rem;
   border-radius: var(--radius-md);
   margin-top: 12px;
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   border: 1px solid var(--border);
   transition: var(--transition);
 }
 
 .card-sala:hover {
-  border-color: var(--border-strong);
+  border-color: var(--action);
   background: var(--surface-hover);
+  box-shadow: 0 0 0 1px var(--action-glow);
+}
+
+.card-sala-info h4 {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.card-sala-info p {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  margin-bottom: 4px;
+}
+
+.card-sala-status {
+  margin-top: 6px;
 }
 
 /* ============================================================
-   Chat
+   Chat (estilo app de mensagens)
    ============================================================ */
 
 #chat-mensagens {
-  height: 150px;
+  height: 160px;
   background: var(--bg-elevated);
   border-radius: var(--radius-sm);
-  padding: 12px;
+  padding: 12px 14px;
   overflow-y: auto;
   margin-bottom: 12px;
   border: 1px solid var(--border);
   font-size: 0.9rem;
+}
+
+#chat-mensagens::-webkit-scrollbar {
+  width: 8px;
+}
+
+#chat-mensagens::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#chat-mensagens::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+}
+
+#chat-mensagens {
   scrollbar-width: thin;
   scrollbar-color: var(--border-strong) transparent;
 }
 
 #chat-mensagens > * {
   animation: fade-in 0.25s var(--ease) both;
+  padding: 6px 0;
 }
 
 .msg-sistema {
   color: var(--text-muted);
   font-style: italic;
-  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
 }
 
-.chat-input-area,
-.indicacao-container input {
+/* Classes que script.js pode aplicar por mensagem, se quiser diferenciar
+   remetente — já vem estilizado, é opcional usar. */
+.msg {
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+  max-width: 85%;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.msg-proprio {
+  background: linear-gradient(135deg, var(--action) 0%, var(--primary-dark) 100%);
+  margin-left: auto;
+}
+
+.msg-outro {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.msg-hora {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-left: 8px;
+}
+
+.chat-input-area {
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
 }
 
 .chat-input-area input,
-.indicacao-container input,
+.indicacao-input-row input,
 .admin-box input {
   flex: 1;
   min-width: 0;
@@ -342,84 +581,23 @@ button:active {
 }
 
 .chat-input-area input:focus,
-.indicacao-container input:focus,
+.indicacao-input-row input:focus,
 .admin-box input:focus {
   border-color: var(--action);
 }
 
-.indicacao-container input {
-  margin: 10px 0;
-}
-
 /* ============================================================
-   Autenticação
+   Indicação
    ============================================================ */
 
-.auth-body {
+.indicacao-input-row {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 1.5rem;
-}
-
-.auth-container {
-  background: linear-gradient(180deg, var(--surface) 0%, var(--bg-elevated) 100%);
-  padding: 2.75rem 2.5rem;
-  border-radius: var(--radius-lg);
-  width: 100%;
-  max-width: 360px;
-  border: 1px solid var(--border-strong);
-  text-align: center;
-  box-shadow: 0 24px 60px -20px #00000080;
-}
-
-.auth-container h2 {
-  font-family: var(--font-display);
-  color: var(--action-2);
-  margin-bottom: 1.5rem;
-  font-size: 1.4rem;
-}
-
-.auth-container input {
-  width: 100%;
-  padding: 11px 14px;
-  margin-bottom: 14px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--bg-elevated);
-  color: var(--text-primary);
-  transition: var(--transition);
-}
-
-.auth-container input:focus {
-  border-color: var(--action);
-}
-
-.auth-container button {
-  width: 100%;
-  padding: 12px;
-}
-
-.auth-links {
-  margin-top: 18px;
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-}
-
-.auth-links a {
-  color: var(--action-2);
-  text-decoration: none;
-  transition: var(--transition);
-}
-
-.auth-links a:hover {
-  color: var(--action);
-  text-decoration: underline;
+  gap: 10px;
+  margin: 12px 0 0;
 }
 
 /* ============================================================
-   Modais
+   Modais (glassmorphism + fade/scale)
    ============================================================ */
 
 .modal {
@@ -436,16 +614,38 @@ button:active {
 }
 
 .modal-conteudo {
-  background: linear-gradient(180deg, var(--surface) 0%, var(--bg-elevated) 100%);
-  padding: 2rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  padding: 1.75rem 2rem 2rem;
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 340px;
   text-align: center;
   position: relative;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--glass-border);
   box-shadow: 0 24px 60px -20px #000000a0;
-  animation: fade-slide-up 0.3s var(--ease) both;
+  animation: modal-pop 0.3s var(--ease) both;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.modal-header h2 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.modal-header-icon {
+  color: var(--action-2);
+  font-size: 1.3rem;
 }
 
 .modal-conteudo input {
@@ -463,10 +663,22 @@ button:active {
   border-color: var(--action);
 }
 
+.modal-conteudo button {
+  width: 100%;
+  justify-content: center;
+}
+
+.aviso-domingo {
+  color: var(--warn);
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
 .fechar {
-  position: absolute;
-  top: 12px; right: 16px;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   line-height: 1;
   cursor: pointer;
   color: var(--text-muted);
@@ -479,19 +691,57 @@ button:active {
 }
 
 /* ============================================================
-   Responsividade
+   Responsividade (mobile-first)
    ============================================================ */
 
-@media (max-width: 640px) {
+@media (max-width: 720px) {
   header {
     padding: 0.85rem 1.25rem;
-    justify-content: center;
-    text-align: center;
   }
 
+  .nav-toggle-label {
+    display: flex;
+  }
+
+  /* Painel some por padrão no mobile; o checkbox revela como um menu compacto */
   .user-panel {
-    justify-content: center;
+    flex-basis: 100%;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: max-height 0.35s var(--ease), opacity 0.25s var(--ease), transform 0.25s var(--ease);
+  }
+
+  .nav-toggle-input:checked ~ .user-panel {
+    max-height: 400px;
+    opacity: 1;
+    transform: translateY(0);
+    margin-top: 12px;
+  }
+
+  .finance-panel {
     width: 100%;
+    justify-content: space-between;
+    border-radius: var(--radius-md);
+  }
+
+  .finance-actions {
+    width: 100%;
+  }
+
+  .finance-actions button {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .header-links {
+    width: 100%;
+  }
+
+  .header-links a {
+    flex: 1;
+    justify-content: center;
   }
 
   .container {
@@ -512,17 +762,19 @@ button:active {
     text-align: left;
   }
 
+  .card-sala button {
+    width: 100%;
+    justify-content: center;
+  }
+
   .chat-input-area,
-  .indicacao-container input {
+  .indicacao-input-row {
     flex-direction: column;
   }
 
-  button {
-    width: 100%;
-  }
-
-  .auth-container {
-    padding: 2rem 1.5rem;
+  .chat-input-area button,
+  .indicacao-input-row button {
+    justify-content: center;
   }
 }
 
