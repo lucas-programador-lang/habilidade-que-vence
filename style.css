@@ -638,6 +638,12 @@ button:active {
   color: var(--action-2);
 }
 
+.auth-subtitulo {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
 .auth-container h2 {
   font-family: var(--font-display);
   font-size: 1.25rem;
