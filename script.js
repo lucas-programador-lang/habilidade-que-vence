@@ -9,7 +9,7 @@
      4. Interface (saldo)
      5. Depósito (fluxo em duas etapas: gerar PIX -> confirmar pagamento)
      6. Saque (nome, chave PIX, valor)
-     7. Sala de jogo
+     7. Sala de jogo (contador e barra de progresso reais)
      8. Chat
      9. Indicação
      10. Painel Admin
@@ -23,6 +23,11 @@
 const estado = {
   saldoAtual: 10.50,
   depositoPendente: null, // valor aguardando confirmação de pagamento
+  sala: {
+    participantesAtuais: 1,
+    capacidadeMaxima: 4,
+    cheia: false,
+  },
 };
 
 const REGRAS = {
@@ -58,7 +63,8 @@ const obterToastContainer = () => {
 };
 
 /**
- * Mostra uma notificação toast no canto da tela, substituindo o alert() nativo.
+ * Mostra uma notificação toast (mini-card com ícone animado e barra de
+ * progresso na base), substituindo o alert() nativo.
  * @param {string} mensagem - Texto a exibir (sempre inserido via textContent).
  * @param {'sucesso'|'erro'|'aviso'|'info'} tipo
  */
@@ -80,7 +86,14 @@ const mostrarToast = (mensagem, tipo = 'info') => {
   btnFechar.setAttribute('aria-label', 'Fechar notificação');
   btnFechar.innerHTML = '<i class="fa-solid fa-xmark"></i>';
 
-  toast.append(icone, texto, btnFechar);
+  const trilhaProgresso = document.createElement('div');
+  trilhaProgresso.className = 'toast-progresso-trilha';
+  const barraProgresso = document.createElement('div');
+  barraProgresso.className = 'toast-progresso-barra';
+  barraProgresso.style.animationDuration = `${TOAST_DURACAO_MS}ms`;
+  trilhaProgresso.appendChild(barraProgresso);
+
+  toast.append(icone, texto, btnFechar, trilhaProgresso);
   container.appendChild(toast);
 
   requestAnimationFrame(() => toast.classList.add('toast-visivel'));
@@ -198,25 +211,20 @@ const atualizarInterface = () => {
 //    Etapa "valor": usuário digita o valor e pede o PIX.
 //    Etapa "qr": mostra QR fictício + chave copia-e-cola; o saldo só
 //    é creditado quando o usuário clica em "Confirmar Pagamento".
-//    Antes, o saldo subia direto ao gerar o PIX — isso estava errado
-//    e foi corrigido aqui.
 // ----------------------------------------------------------------
 
-/** Alterna qual etapa do modal de depósito fica visível. */
 const mostrarEtapaDeposito = (nomeEtapa) => {
   document.querySelectorAll('#modal-depositar .deposito-etapa').forEach((etapa) => {
     etapa.hidden = etapa.dataset.etapa !== nomeEtapa;
   });
 };
 
-/** Abre o modal de depósito sempre resetado na etapa inicial. */
 const abrirModalDeposito = () => {
   mostrarEtapaDeposito('valor');
   estado.depositoPendente = null;
   abrirModal('modal-depositar');
 };
 
-/** Gera um payload PIX copia-e-cola fictício só pra preencher a tela. */
 const gerarChavePixFicticia = (valor) => {
   const valorFormatado = valor.toFixed(2);
   return `00020126580014BR.GOV.BCB.PIX0136habilidadequevence-${Date.now()}5204000053039865406${valorFormatado}5802BR5920HABILIDADE QUE VENCE6009SAO PAULO62070503***6304`;
@@ -309,9 +317,41 @@ const realizarSaque = () => {
 
 // ----------------------------------------------------------------
 // 7. Sala de jogo
+//    Contador e barra de progresso refletem o estado real da sala —
+//    antes o "1/4" e a barra ficavam fixos mesmo depois de entrar.
 // ----------------------------------------------------------------
 
+/** Atualiza o número exibido e a largura da barra de progresso da sala. */
+const atualizarInterfaceSala = () => {
+  const contador = document.getElementById('contador-players');
+  const barra = document.querySelector('.progresso-sala-preenchido');
+  const botao = document.querySelector('.btn-entrar-sala');
+  const badgeVagas = document.querySelector('.progresso-sala .badge-open');
+
+  if (contador) contador.textContent = estado.sala.participantesAtuais;
+
+  if (barra) {
+    const percentual = (estado.sala.participantesAtuais / estado.sala.capacidadeMaxima) * 100;
+    barra.style.width = `${percentual}%`;
+  }
+
+  if (estado.sala.cheia) {
+    if (botao) {
+      botao.disabled = true;
+      botao.innerHTML = '<i class="fa-solid fa-lock"></i> Sala completa';
+    }
+    if (badgeVagas) {
+      badgeVagas.classList.add('badge-completa');
+    }
+  }
+};
+
 const entrarNaSala = (valor) => {
+  if (estado.sala.cheia) {
+    mostrarToast('Essa sala já está completa. Aguarde a próxima.', 'aviso');
+    return;
+  }
+
   if (estado.saldoAtual < valor) {
     mostrarToast(`Saldo insuficiente para investir nesta partida! Faça um depósito a partir de R$ ${REGRAS.DEPOSITO_MINIMO.toFixed(2)}.`, 'aviso');
     abrirModalDeposito();
@@ -319,8 +359,23 @@ const entrarNaSala = (valor) => {
   }
 
   estado.saldoAtual -= valor;
+  estado.sala.participantesAtuais = Math.min(
+    estado.sala.participantesAtuais + 1,
+    estado.sala.capacidadeMaxima
+  );
+
+  if (estado.sala.participantesAtuais >= estado.sala.capacidadeMaxima) {
+    estado.sala.cheia = true;
+  }
+
   atualizarInterface();
-  mostrarToast(`Investimento de R$ ${valor.toFixed(2)} confirmado! Aguardando completar 4 participantes na sala.`, 'sucesso');
+  atualizarInterfaceSala();
+
+  if (estado.sala.cheia) {
+    mostrarToast('Sala completa! A partida vai começar em instantes.', 'sucesso');
+  } else {
+    mostrarToast(`Investimento de R$ ${valor.toFixed(2)} confirmado! Aguardando completar 4 participantes na sala.`, 'sucesso');
+  }
 };
 
 // ----------------------------------------------------------------
@@ -398,3 +453,4 @@ const adminExcluirConta = async () => {
 // ----------------------------------------------------------------
 
 atualizarInterface();
+atualizarInterfaceSala();
