@@ -7,10 +7,13 @@
      2. Sistema de notificações (toast) e confirmação customizada
      3. Modais (abrir/fechar com animação sincronizada ao CSS)
      4. Interface (saldo)
-     5. Ações financeiras (depósito, saque, entrar na sala)
-     6. Chat
-     7. Painel Admin
-     8. Inicialização
+     5. Depósito (fluxo em duas etapas: gerar PIX -> confirmar pagamento)
+     6. Saque (nome, chave PIX, valor)
+     7. Sala de jogo
+     8. Chat
+     9. Indicação
+     10. Painel Admin
+     11. Inicialização
    ================================================================ */
 
 // ----------------------------------------------------------------
@@ -19,6 +22,7 @@
 
 const estado = {
   saldoAtual: 10.50,
+  depositoPendente: null, // valor aguardando confirmação de pagamento
 };
 
 const REGRAS = {
@@ -79,7 +83,6 @@ const mostrarToast = (mensagem, tipo = 'info') => {
   toast.append(icone, texto, btnFechar);
   container.appendChild(toast);
 
-  // Força um reflow antes de adicionar a classe de transição de entrada
   requestAnimationFrame(() => toast.classList.add('toast-visivel'));
 
   const remover = () => {
@@ -155,7 +158,6 @@ const confirmarAcao = (mensagem, titulo = 'Confirmar ação') => {
 // 3. Modais (abrir/fechar com animação sincronizada ao CSS)
 // ----------------------------------------------------------------
 
-/** Abre um modal, garantindo que a animação de entrada rode do zero. */
 const abrirModal = (id) => {
   const modal = document.getElementById(id);
   if (!modal) return;
@@ -164,10 +166,6 @@ const abrirModal = (id) => {
   modal.style.display = 'flex';
 };
 
-/**
- * Fecha um modal aguardando a animação de saída (fade-out + scale-down)
- * definida em CSS antes de aplicar display: none.
- */
 const fecharModal = (id) => {
   const modal = document.getElementById(id);
   if (!modal) return;
@@ -179,17 +177,14 @@ const fecharModal = (id) => {
     modal.classList.remove('fechando');
   };
 
-  // 'animationend' no próprio overlay é suficiente pra sincronizar;
-  // o setTimeout é só uma rede de segurança caso o evento não dispare.
   modal.addEventListener('animationend', finalizarFechamento, { once: true });
-  setTimeout(finalizarFechamento, 250);
+  setTimeout(finalizarFechamento, 250); // rede de segurança
 };
 
 // ----------------------------------------------------------------
 // 4. Interface (saldo)
 // ----------------------------------------------------------------
 
-/** Atualiza todos os elementos da tela que dependem do estado atual. */
 const atualizarInterface = () => {
   const elementoSaldo = document.getElementById('user-saldo');
   if (!elementoSaldo) return;
@@ -199,10 +194,35 @@ const atualizarInterface = () => {
 };
 
 // ----------------------------------------------------------------
-// 5. Ações financeiras
+// 5. Depósito — fluxo em duas etapas
+//    Etapa "valor": usuário digita o valor e pede o PIX.
+//    Etapa "qr": mostra QR fictício + chave copia-e-cola; o saldo só
+//    é creditado quando o usuário clica em "Confirmar Pagamento".
+//    Antes, o saldo subia direto ao gerar o PIX — isso estava errado
+//    e foi corrigido aqui.
 // ----------------------------------------------------------------
 
-const realizarDeposito = () => {
+/** Alterna qual etapa do modal de depósito fica visível. */
+const mostrarEtapaDeposito = (nomeEtapa) => {
+  document.querySelectorAll('#modal-depositar .deposito-etapa').forEach((etapa) => {
+    etapa.hidden = etapa.dataset.etapa !== nomeEtapa;
+  });
+};
+
+/** Abre o modal de depósito sempre resetado na etapa inicial. */
+const abrirModalDeposito = () => {
+  mostrarEtapaDeposito('valor');
+  estado.depositoPendente = null;
+  abrirModal('modal-depositar');
+};
+
+/** Gera um payload PIX copia-e-cola fictício só pra preencher a tela. */
+const gerarChavePixFicticia = (valor) => {
+  const valorFormatado = valor.toFixed(2);
+  return `00020126580014BR.GOV.BCB.PIX0136habilidadequevence-${Date.now()}5204000053039865406${valorFormatado}5802BR5920HABILIDADE QUE VENCE6009SAO PAULO62070503***6304`;
+};
+
+const gerarPixDeposito = () => {
   const { value } = document.getElementById('valor-deposito');
   const valor = parseFloat(value);
 
@@ -211,18 +231,55 @@ const realizarDeposito = () => {
     return;
   }
 
-  estado.saldoAtual += valor;
-  atualizarInterface();
-  fecharModal('modal-depositar');
-  mostrarToast(`PIX gerado via API com sucesso! Depósito de R$ ${valor.toFixed(2)} creditado.`, 'sucesso');
+  estado.depositoPendente = valor;
+
+  document.getElementById('deposito-valor-exibido').textContent =
+    `R$ ${valor.toFixed(2).replace('.', ',')}`;
+  document.getElementById('pix-copia-cola').value = gerarChavePixFicticia(valor);
+
+  mostrarEtapaDeposito('qr');
 };
 
-const realizarSaque = () => {
-  const { value } = document.getElementById('valor-saque');
-  const valor = parseFloat(value);
-  const hoje = new Date().getDay();
+const copiarChavePix = () => {
+  const input = document.getElementById('pix-copia-cola');
+  input.select();
+  navigator.clipboard.writeText(input.value);
+  mostrarToast('Chave PIX copiada! Cole no seu banco para pagar.', 'sucesso');
+};
 
-  // Regra rígida: saque somente aos domingos
+/** Só aqui, na confirmação explícita, o saldo é de fato creditado. */
+const confirmarPagamentoPix = () => {
+  if (estado.depositoPendente === null) {
+    mostrarToast('Nenhum depósito pendente para confirmar.', 'erro');
+    return;
+  }
+
+  estado.saldoAtual += estado.depositoPendente;
+  atualizarInterface();
+
+  const valorCreditado = estado.depositoPendente;
+  estado.depositoPendente = null;
+
+  fecharModal('modal-depositar');
+  mostrarToast(`Pagamento confirmado! R$ ${valorCreditado.toFixed(2)} creditado na sua conta.`, 'sucesso');
+};
+
+// ----------------------------------------------------------------
+// 6. Saque — nome completo, chave PIX e valor
+// ----------------------------------------------------------------
+
+const realizarSaque = () => {
+  const { value: nome } = document.getElementById('saque-nome');
+  const { value: chavePix } = document.getElementById('saque-chave-pix');
+  const { value: valorTexto } = document.getElementById('valor-saque');
+  const valor = parseFloat(valorTexto);
+
+  if (nome.trim().length === 0 || chavePix.trim().length === 0 || valorTexto.trim().length === 0) {
+    mostrarToast('Preencha nome completo, chave PIX e valor para solicitar o saque.', 'erro');
+    return;
+  }
+
+  const hoje = new Date().getDay();
   if (hoje !== REGRAS.DIA_LIBERADO_SAQUE) {
     mostrarToast('Os saques automáticos só são permitidos aos DOMINGOS!', 'aviso');
     return;
@@ -245,15 +302,19 @@ const realizarSaque = () => {
   atualizarInterface();
   fecharModal('modal-sacar');
   mostrarToast(
-    `Saque via API solicitado! Taxa de ${REGRAS.TAXA_SAQUE * 100}% aplicada. Valor líquido a receber: R$ ${valorLiquido.toFixed(2)}`,
+    `Saque solicitado para a chave ${chavePix}! Taxa de ${REGRAS.TAXA_SAQUE * 100}% aplicada. Valor líquido: R$ ${valorLiquido.toFixed(2)}`,
     'sucesso'
   );
 };
 
+// ----------------------------------------------------------------
+// 7. Sala de jogo
+// ----------------------------------------------------------------
+
 const entrarNaSala = (valor) => {
   if (estado.saldoAtual < valor) {
     mostrarToast(`Saldo insuficiente para investir nesta partida! Faça um depósito a partir de R$ ${REGRAS.DEPOSITO_MINIMO.toFixed(2)}.`, 'aviso');
-    abrirModal('modal-depositar');
+    abrirModalDeposito();
     return;
   }
 
@@ -263,7 +324,7 @@ const entrarNaSala = (valor) => {
 };
 
 // ----------------------------------------------------------------
-// 6. Chat
+// 8. Chat
 // ----------------------------------------------------------------
 
 /**
@@ -285,7 +346,7 @@ const enviarMensagem = () => {
   autor.textContent = 'Você: ';
 
   const corpo = document.createElement('span');
-  corpo.textContent = texto; // texto do usuário nunca vira HTML
+  corpo.textContent = texto;
 
   const hora = document.createElement('span');
   hora.className = 'msg-hora';
@@ -298,6 +359,10 @@ const enviarMensagem = () => {
   chat.scrollTop = chat.scrollHeight;
 };
 
+// ----------------------------------------------------------------
+// 9. Indicação
+// ----------------------------------------------------------------
+
 const copiarLink = () => {
   const input = document.getElementById('link-afiliado');
   input.select();
@@ -306,7 +371,7 @@ const copiarLink = () => {
 };
 
 // ----------------------------------------------------------------
-// 7. Painel Admin
+// 10. Painel Admin
 // ----------------------------------------------------------------
 
 const adminAlterarSaldo = () => {
@@ -329,7 +394,7 @@ const adminExcluirConta = async () => {
 };
 
 // ----------------------------------------------------------------
-// 8. Inicialização
+// 11. Inicialização
 // ----------------------------------------------------------------
 
 atualizarInterface();
