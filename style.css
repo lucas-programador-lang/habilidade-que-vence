@@ -1,45 +1,49 @@
 /* ============================================================
-   HABILIDADE QUE VENCE — Design System (Obsidian / Glass)
-   Dashboard de duelos com dinheiro real: dinheiro (dourado) e
-   ação (violeta-azulado) como as duas cores de assinatura;
-   tudo o mais fica quieto ao redor delas.
+   HABILIDADE QUE VENCE — Design System v3 (Obsidian Panda)
+   Duas cores de assinatura, cada uma com um trabalho fixo:
+     esmeralda  -> dinheiro e sucesso (saldo, depósito, badges $)
+     teal/ciano -> jogo e ação (entrar na sala, chat, links)
+   Nada mais na paleta compete com essas duas.
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* --- Base obsidian --- */
-  --bg: #07090d;
-  --bg-elevated: #0e121a;
-  --surface: #141926;
-  --surface-hover: #1a2130;
-  --border: #232b3a;
+  /* --- Base obsidian / midnight --- */
+  --bg: #070a13;
+  --bg-elevated: #0d1220;
+  --surface: #131a2b;
+  --surface-hover: #182036;
+  --border: #212a3f;
   --border-strong: #34405670;
 
   /* --- Vidro (glassmorphism) --- */
-  --glass-bg: rgba(20, 25, 38, 0.55);
-  --glass-border: rgba(255, 255, 255, 0.07);
-  --glass-blur: 18px;
+  --glass-bg: rgba(19, 26, 43, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-blur: 20px;
 
   /* --- Texto --- */
-  --text-primary: #f2f4f8;
-  --text-secondary: #a7b0c0;
-  --text-muted: #6b7688;
+  --text-primary: #f2f5f9;
+  --text-secondary: #9aa5bd;
+  --text-muted: #5f6b85;
 
-  /* --- Assinatura: dinheiro x ação --- */
-  --money: #f2b84b;
-  --money-glow: #f2b84b4d;
-  --action: #7c6cff;
-  --action-2: #4f9dff;
-  --action-glow: #7c6cff4d;
+  /* --- Assinatura: dinheiro (esmeralda) --- */
+  --money: #17d68f;
+  --money-dark: #0a9c6a;
+  --money-glow: #17d68f4d;
 
-  /* --- Semântica --- */
-  --ok: #34d399;
-  --ok-dark: #1a9e73;
+  /* --- Assinatura: jogo/ação (teal -> ciano) --- */
+  --action: #12b3c4;
+  --action-2: #22e0e0;
+  --action-glow: #22e0e04d;
+
+  /* --- Semântica dos botões --- */
+  --ok: #17d68f;
+  --ok-dark: #0a9c6a;
   --warn: #f2b84b;
   --warn-dark: #c9922e;
-  --primary: #4f7dff;
-  --primary-dark: #3a5fd9;
+  --primary: #12b3c4;
+  --primary-dark: #0c828f;
   --danger: #ef5a6f;
   --danger-dark: #c53a4e;
   --whatsapp: #25d366;
@@ -83,12 +87,11 @@ html, body {
 }
 
 body {
-  background:
-    radial-gradient(ellipse 900px 500px at 50% -10%, #1a1440 0%, transparent 60%),
-    var(--bg);
+  background: var(--bg);
   color: var(--text-primary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  position: relative;
 }
 
 a:focus-visible,
@@ -98,6 +101,25 @@ label:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px var(--action-glow), 0 0 0 1px var(--action);
   border-radius: var(--radius-sm);
+}
+
+/* ============================================================
+   Marca d'água — Panda (tema sutil, geométrico, nada cartunesco)
+   Duas orelhas + cabeça em gradientes radiais muito discretos,
+   fixas no canto, atrás de todo o conteúdo.
+   ============================================================ */
+
+.panda-watermark {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle 70px at 84% 6%, #ffffff14 0%, transparent 72%),
+    radial-gradient(circle 70px at 98% 6%, #ffffff14 0%, transparent 72%),
+    radial-gradient(circle 220px at 91% 16%, #ffffff0d 0%, transparent 70%),
+    radial-gradient(ellipse 900px 500px at 50% -10%, #0d3b3622 0%, transparent 60%),
+    radial-gradient(ellipse 700px 400px at 100% 100%, #0a2a2a2e 0%, transparent 60%);
 }
 
 /* ============================================================
@@ -119,14 +141,24 @@ label:focus-visible {
   to   { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+@keyframes modal-pop-out {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to   { opacity: 0; transform: scale(0.94) translateY(8px); }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
 @keyframes pulse-money {
   0%, 100% { text-shadow: 0 0 10px var(--money-glow); }
   50%      { text-shadow: 0 0 22px var(--money-glow); }
 }
 
 @keyframes pulse-dot {
-  0%, 100% { box-shadow: 0 0 0 0 #34d39966; }
-  50%      { box-shadow: 0 0 0 5px #34d39900; }
+  0%, 100% { box-shadow: 0 0 0 0 #17d68f66; }
+  50%      { box-shadow: 0 0 0 5px #17d68f00; }
 }
 
 .banner-desafio,
@@ -142,7 +174,7 @@ label:focus-visible {
    ============================================================ */
 
 header {
-  background: linear-gradient(180deg, var(--bg-elevated) 0%, #0a0d14 100%);
+  background: linear-gradient(180deg, var(--bg-elevated) 0%, #080b14 100%);
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
@@ -184,7 +216,6 @@ header::after {
   color: transparent;
 }
 
-/* Toggle mobile — checkbox escondido controla o painel via CSS */
 .nav-toggle-input {
   display: none;
 }
@@ -223,7 +254,6 @@ header::after {
   flex-wrap: wrap;
 }
 
-/* Sub-painel financeiro: saldo + ações agrupados num bloco de vidro */
 .finance-panel {
   display: flex;
   align-items: center;
@@ -249,7 +279,6 @@ header::after {
   flex-wrap: wrap;
 }
 
-/* Saldo como placar: numérico, com glow dourado pulsante */
 #user-saldo {
   font-family: var(--font-display);
   font-weight: 700;
@@ -281,6 +310,7 @@ button {
   transition: var(--transition);
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
   white-space: nowrap;
 }
@@ -296,7 +326,7 @@ button:active {
 
 .btn-verde {
   background: linear-gradient(135deg, var(--ok) 0%, var(--ok-dark) 100%);
-  box-shadow: 0 4px 14px -4px #34d39955;
+  box-shadow: 0 4px 14px -4px #17d68f55;
 }
 
 .btn-amarelo {
@@ -306,7 +336,7 @@ button:active {
 
 .btn-primario {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-  box-shadow: 0 4px 14px -4px #4f7dff55;
+  box-shadow: 0 4px 14px -4px #12b3c455;
 }
 
 .btn-perigo {
@@ -354,8 +384,35 @@ button:active {
   box-shadow: 0 4px 14px -4px #25d36680;
 }
 
+/* Botão de entrar na sala: brilho de destaque + efeito shine no hover */
+.btn-entrar-sala {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-entrar-sala::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, #ffffff4d, transparent);
+  transform: skewX(-20deg);
+  transition: left 0.55s var(--ease);
+}
+
+.btn-entrar-sala:hover {
+  box-shadow: 0 0 26px var(--action-glow), 0 10px 24px -10px #000000a0;
+  transform: translateY(-2px);
+}
+
+.btn-entrar-sala:hover::after {
+  left: 130%;
+}
+
 /* ============================================================
-   Container & painéis (com leve efeito de vidro)
+   Container & painéis
    ============================================================ */
 
 .container {
@@ -382,7 +439,7 @@ button:active {
   border-color: var(--border-strong);
   background:
     linear-gradient(180deg, var(--surface) 0%, var(--bg-elevated) 100%),
-    radial-gradient(circle at 50% 0%, #7c6cff22, transparent 60%);
+    radial-gradient(circle at 50% 0%, #12b3c422, transparent 60%);
 }
 
 .banner-desafio h2 {
@@ -425,12 +482,13 @@ button:active {
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 
 .badge-open {
-  background: #34d39922;
+  background: #17d68f22;
   color: var(--ok);
-  border: 1px solid #34d39944;
+  border: 1px solid #17d68f44;
 }
 
 .badge-open i {
@@ -440,29 +498,29 @@ button:active {
 }
 
 .badge-shield {
-  background: #4f9dff1a;
+  background: #22e0e01a;
   color: var(--action-2);
-  border: 1px solid #4f9dff40;
+  border: 1px solid #22e0e040;
   font-size: 0.7rem;
 }
 
 .badge-money {
-  background: #f2b84b22;
+  background: #17d68f22;
   color: var(--money);
-  border: 1px solid #f2b84b44;
+  border: 1px solid #17d68f44;
 }
 
 /* --- Sala de duelo --- */
 
 .card-sala {
   background: var(--bg-elevated);
-  padding: 1.1rem 1.3rem;
+  padding: 1.25rem 1.4rem;
   border-radius: var(--radius-md);
   margin-top: 12px;
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
   border: 1px solid var(--border);
   transition: var(--transition);
 }
@@ -473,23 +531,63 @@ button:active {
   box-shadow: 0 0 0 1px var(--action-glow);
 }
 
-.card-sala-info h4 {
-  font-size: 1rem;
-  margin-bottom: 4px;
+.card-sala-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 
-.card-sala-info p {
+.card-sala-info h4 {
+  font-size: 1.05rem;
+}
+
+.card-sala-valores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
   color: var(--text-secondary);
   font-size: 0.88rem;
-  margin-bottom: 4px;
+  margin-bottom: 12px;
 }
 
-.card-sala-status {
-  margin-top: 6px;
+.card-sala-valores i {
+  color: var(--money);
+  margin-right: 4px;
+}
+
+.card-sala-valores strong {
+  color: var(--text-primary);
+}
+
+.progresso-sala {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.progresso-sala-barra {
+  flex: 1;
+  min-width: 90px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.progresso-sala-preenchido {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--action) 0%, var(--action-2) 100%);
+  box-shadow: 0 0 12px var(--action-glow);
+  transition: width 0.4s var(--ease);
 }
 
 /* ============================================================
-   Chat (estilo app de mensagens)
+   Chat
    ============================================================ */
 
 #chat-mensagens {
@@ -501,6 +599,8 @@ button:active {
   margin-bottom: 12px;
   border: 1px solid var(--border);
   font-size: 0.9rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
 }
 
 #chat-mensagens::-webkit-scrollbar {
@@ -516,11 +616,6 @@ button:active {
   border-radius: 999px;
 }
 
-#chat-mensagens {
-  scrollbar-width: thin;
-  scrollbar-color: var(--border-strong) transparent;
-}
-
 #chat-mensagens > * {
   animation: fade-in 0.25s var(--ease) both;
   padding: 6px 0;
@@ -533,10 +628,12 @@ button:active {
   align-items: center;
   gap: 6px;
   font-size: 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px !important;
 }
 
-/* Classes que script.js pode aplicar por mensagem, se quiser diferenciar
-   remetente — já vem estilizado, é opcional usar. */
 .msg {
   padding: 8px 12px;
   border-radius: var(--radius-sm);
@@ -590,6 +687,17 @@ button:active {
    Indicação
    ============================================================ */
 
+.indicacao-destaque {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
 .indicacao-input-row {
   display: flex;
   gap: 10px;
@@ -606,9 +714,7 @@ button:active {
   align-items: center;
   min-height: 100vh;
   padding: 1.5rem;
-  background:
-    radial-gradient(ellipse 900px 500px at 50% -10%, #1a1440 0%, transparent 60%),
-    var(--bg);
+  background: var(--bg);
 }
 
 .auth-container {
@@ -623,6 +729,8 @@ button:active {
   text-align: center;
   box-shadow: 0 24px 60px -20px #000000a0;
   animation: fade-slide-up 0.5s var(--ease) both;
+  position: relative;
+  z-index: 1;
 }
 
 .auth-logo {
@@ -659,8 +767,6 @@ button:active {
   gap: 14px;
 }
 
-/* Campo com ícone à esquerda; o próprio wrapper recebe o glow de foco,
-   assim o ícone e o input reagem juntos ao focus-visible do input */
 .input-icon-group {
   position: relative;
   display: flex;
@@ -698,7 +804,6 @@ button:active {
   color: var(--action-2);
 }
 
-/* Validação sutil (classes que auth.js pode aplicar ao validar um campo) */
 .input-icon-group.invalido input {
   border-color: var(--danger);
 }
@@ -784,6 +889,14 @@ button:active {
   animation: fade-in 0.2s var(--ease) both;
 }
 
+.modal.fechando {
+  animation: fade-out 0.18s var(--ease) forwards;
+}
+
+.modal.fechando .modal-conteudo {
+  animation: modal-pop-out 0.18s var(--ease) forwards;
+}
+
 .modal-conteudo {
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
@@ -791,7 +904,7 @@ button:active {
   padding: 1.75rem 2rem 2rem;
   border-radius: var(--radius-lg);
   width: 100%;
-  max-width: 340px;
+  max-width: 360px;
   text-align: center;
   position: relative;
   border: 1px solid var(--glass-border);
@@ -799,11 +912,15 @@ button:active {
   animation: modal-pop 0.3s var(--ease) both;
 }
 
+.modal-conteudo > * + * {
+  margin-top: 14px;
+}
+
 .modal-header {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
   text-align: left;
 }
 
@@ -819,10 +936,15 @@ button:active {
   font-size: 1.3rem;
 }
 
-.modal-conteudo input {
+.modal-conteudo p {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  text-align: left;
+}
+
+.modal-conteudo input:not(.input-icon-group input) {
   width: 100%;
   padding: 11px 14px;
-  margin: 15px 0;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   background: var(--bg-elevated);
@@ -839,26 +961,187 @@ button:active {
   justify-content: center;
 }
 
+.confirm-mensagem {
+  color: var(--text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-actions button {
+  width: auto;
+  flex: 1;
+  justify-content: center;
+}
+
 .aviso-domingo {
-  color: var(--warn);
-  font-size: 0.85rem;
+  color: var(--warn) !important;
+  font-size: 0.85rem !important;
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 6px;
 }
 
-.fechar {
-  font-size: 1.4rem;
-  line-height: 1;
-  cursor: pointer;
-  color: var(--text-muted);
-  transition: var(--transition);
+.saque-regras {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-.fechar:hover {
+/* --- Depósito: etapa 2 (QR fictício) --- */
+
+.deposito-etapa {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.deposito-etapa[hidden] {
+  display: none;
+}
+
+.pix-qrcode {
+  width: 170px;
+  height: 170px;
+  margin: 0 auto;
+  padding: 14px;
+  background: #ffffff;
+  border-radius: var(--radius-md);
+  box-shadow: 0 20px 40px -20px #000000a0;
+}
+
+.pix-qrcode-quadro {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border-radius: 6px;
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(90deg, #0a0d14 22%, transparent 22%),
+    linear-gradient(90deg, transparent 78%, #0a0d14 78%),
+    linear-gradient(0deg, #0a0d14 22%, transparent 22%),
+    linear-gradient(0deg, transparent 78%, #0a0d14 78%);
+  background-size: 18px 18px;
+}
+
+.pix-qrcode-canto {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border: 6px solid #0a0d14;
+  background:
+    linear-gradient(#0a0d14, #0a0d14) center / 10px 10px no-repeat,
+    #ffffff;
+}
+
+.pix-qrcode-canto-tl { top: 8px; left: 8px; }
+.pix-qrcode-canto-tr { top: 8px; right: 8px; }
+.pix-qrcode-canto-bl { bottom: 8px; left: 8px; }
+
+.pix-valor-linha {
+  text-align: center !important;
+  font-size: 0.95rem !important;
+}
+
+.pix-valor-linha strong {
+  color: var(--money);
+  font-family: var(--font-display);
+}
+
+/* ============================================================
+   Toast notifications
+   ============================================================ */
+
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: min(360px, calc(100vw - 40px));
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-left: 3px solid var(--action);
+  box-shadow: 0 12px 32px -12px #000000a0;
   color: var(--text-primary);
-  transform: rotate(90deg);
+  font-size: 0.88rem;
+  line-height: 1.4;
+  transform: translateX(120%);
+  opacity: 0;
+  transition: transform 0.3s var(--ease), opacity 0.3s var(--ease);
+}
+
+.toast.toast-visivel {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toast-icon {
+  font-size: 1.05rem;
+  margin-top: 1px;
+}
+
+.toast-fechar {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9rem;
+  margin-left: auto;
+  width: auto;
+}
+
+.toast-fechar:hover {
+  color: var(--text-primary);
+  transform: none;
+  filter: none;
+}
+
+.toast-sucesso { border-left-color: var(--ok); }
+.toast-sucesso .toast-icon { color: var(--ok); }
+
+.toast-erro { border-left-color: var(--danger); }
+.toast-erro .toast-icon { color: var(--danger); }
+
+.toast-aviso { border-left-color: var(--warn); }
+.toast-aviso .toast-icon { color: var(--warn); }
+
+.toast-info { border-left-color: var(--action-2); }
+.toast-info .toast-icon { color: var(--action-2); }
+
+@media (max-width: 480px) {
+  .toast-container {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    max-width: none;
+  }
+
+  .toast {
+    transform: translateY(120%);
+  }
+
+  .toast.toast-visivel {
+    transform: translateY(0);
+  }
 }
 
 /* ============================================================
@@ -874,7 +1157,6 @@ button:active {
     display: flex;
   }
 
-  /* Painel some por padrão no mobile; o checkbox revela como um menu compacto */
   .user-panel {
     flex-basis: 100%;
     max-height: 0;
@@ -952,138 +1234,5 @@ button:active {
 @media (min-width: 1600px) {
   .container {
     max-width: 1040px;
-  }
-}
-
-/* ============================================================
-   Fechamento animado dos modais (classe aplicada via JS antes
-   de setar display: none, pra não "sumir" abruptamente)
-   ============================================================ */
-
-@keyframes fade-out {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
-
-@keyframes modal-pop-out {
-  from { opacity: 1; transform: scale(1) translateY(0); }
-  to   { opacity: 0; transform: scale(0.94) translateY(8px); }
-}
-
-.modal.fechando {
-  animation: fade-out 0.18s var(--ease) forwards;
-}
-
-.modal.fechando .modal-conteudo {
-  animation: modal-pop-out 0.18s var(--ease) forwards;
-}
-
-/* --- Modal de confirmação (gerado dinamicamente pelo JS) --- */
-
-.confirm-mensagem {
-  color: var(--text-secondary);
-  font-size: 0.92rem;
-  line-height: 1.5;
-  text-align: left;
-  margin-bottom: 4px;
-}
-
-.confirm-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.confirm-actions button {
-  width: auto;
-  flex: 1;
-  justify-content: center;
-}
-
-/* ============================================================
-   Toast notifications
-   ============================================================ */
-
-.toast-container {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 999;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-width: min(360px, calc(100vw - 40px));
-}
-
-.toast {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 14px 16px;
-  border-radius: var(--radius-md);
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-left: 3px solid var(--action);
-  box-shadow: 0 12px 32px -12px #000000a0;
-  color: var(--text-primary);
-  font-size: 0.88rem;
-  line-height: 1.4;
-  transform: translateX(120%);
-  opacity: 0;
-  transition: transform 0.3s var(--ease), opacity 0.3s var(--ease);
-}
-
-.toast.toast-visivel {
-  transform: translateX(0);
-  opacity: 1;
-}
-
-.toast-icon {
-  font-size: 1.05rem;
-  margin-top: 1px;
-}
-
-.toast-fechar {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  padding: 0;
-  font-size: 0.9rem;
-  margin-left: auto;
-}
-
-.toast-fechar:hover {
-  color: var(--text-primary);
-}
-
-.toast-sucesso { border-left-color: var(--ok); }
-.toast-sucesso .toast-icon { color: var(--ok); }
-
-.toast-erro { border-left-color: var(--danger); }
-.toast-erro .toast-icon { color: var(--danger); }
-
-.toast-aviso { border-left-color: var(--warn); }
-.toast-aviso .toast-icon { color: var(--warn); }
-
-.toast-info { border-left-color: var(--action-2); }
-.toast-info .toast-icon { color: var(--action-2); }
-
-@media (max-width: 480px) {
-  .toast-container {
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
-    max-width: none;
-  }
-
-  .toast {
-    transform: translateY(120%);
-  }
-
-  .toast.toast-visivel {
-    transform: translateY(0);
   }
 }
