@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <div class="panda-watermark" aria-hidden="true"></div>
+
     <header>
         <div class="logo">
             <i class="fa-solid fa-chess-knight logo-icon"></i>
@@ -36,7 +38,7 @@
             <div class="finance-panel">
                 <span id="user-saldo"><i class="fa-solid fa-sack-dollar"></i> Saldo: R$ 0,50</span>
                 <div class="finance-actions">
-                    <button onclick="abrirModal('modal-depositar')" class="btn-verde">
+                    <button onclick="abrirModalDeposito()" class="btn-verde">
                         <i class="fa-solid fa-circle-plus"></i> Depositar
                     </button>
                     <button onclick="abrirModal('modal-sacar')" class="btn-amarelo">
@@ -62,25 +64,38 @@
             <p>Jogue contra seus aliados, mostre sua estratégia e conquiste o dinheiro acumulado! Partidas a partir de <strong>R$ 0,50</strong> (Mínimo 4 participantes).</p>
         </section>
 
+        <!-- Bloco 1: Salas de Jogos -->
         <section class="lote-partidas">
             <h3><i class="fa-solid fa-users"></i> Salas de Jogos Clássicos (4+ Participantes)</h3>
+
             <div class="card-sala">
                 <div class="card-sala-info">
-                    <h4>Sala Estratégia #1 (Valendo em Real)</h4>
-                    <p>Investimento: R$ 0,50 | Prêmio Acumulado: R$ 2,00+</p>
-                    <p class="card-sala-status">
+                    <div class="card-sala-topo">
+                        <h4>Sala Estratégia #1</h4>
+                        <span class="badge badge-money">Valendo em Real</span>
+                    </div>
+                    <p class="card-sala-valores">
+                        <span><i class="fa-solid fa-coins"></i> Investimento: <strong>R$ 0,50</strong></span>
+                        <span><i class="fa-solid fa-trophy"></i> Prêmio Acumulado: <strong>R$ 2,00+</strong></span>
+                    </p>
+
+                    <div class="progresso-sala">
+                        <div class="progresso-sala-barra">
+                            <div class="progresso-sala-preenchido" style="width: 25%;"></div>
+                        </div>
                         <span class="badge badge-open">
                             <i class="fa-solid fa-circle"></i>
-                            Participantes confirmados: <span id="contador-players">1</span>/4
+                            <span id="contador-players">1</span>/4 confirmados
                         </span>
-                    </p>
+                    </div>
                 </div>
-                <button onclick="entrarNaSala(0.50)" class="btn-primario">
+                <button onclick="entrarNaSala(0.50)" class="btn-primario btn-entrar-sala">
                     <i class="fa-solid fa-play"></i> Entrar na Partida (R$ 0,50)
                 </button>
             </div>
         </section>
 
+        <!-- Bloco 2: Chat -->
         <section class="chat-container">
             <h3><i class="fa-solid fa-comments"></i> Chat da Partida
                 <span class="badge badge-shield"><i class="fa-solid fa-shield-halved"></i> Anti-Fraude Ativo</span>
@@ -96,9 +111,13 @@
             </div>
         </section>
 
+        <!-- Bloco 3: Indicação -->
         <section class="indicacao-container">
-            <h3><i class="fa-solid fa-share-nodes"></i> Seu Link de Indicação <span class="badge badge-money">8% de comissão</span></h3>
-            <p>Compartilhe seu link e ganhe 8% de tudo o que seus indicados depositarem:</p>
+            <h3><i class="fa-solid fa-share-nodes"></i> Seu Link de Indicação</h3>
+            <p class="indicacao-destaque">
+                <span class="badge badge-money">8% de comissão</span>
+                Compartilhe seu link e ganhe 8% de tudo o que seus indicados depositarem:
+            </p>
             <div class="indicacao-input-row">
                 <input type="text" id="link-afiliado" readonly value="https://habilidadequevence.com/register.html?ref=USER123">
                 <button onclick="copiarLink()" class="btn-primario">
@@ -108,7 +127,7 @@
         </section>
     </main>
 
-    <!-- Modal Depósito PIX Automático -->
+    <!-- Modal Depósito PIX Automático — duas etapas -->
     <div id="modal-depositar" class="modal">
         <div class="modal-conteudo">
             <div class="modal-header">
@@ -116,15 +135,44 @@
                 <h2>Depósito Automático PIX</h2>
                 <span onclick="fecharModal('modal-depositar')" class="fechar" role="button" aria-label="Fechar">&times;</span>
             </div>
-            <p>Valor mínimo: R$ 0,50</p>
-            <input type="number" id="valor-deposito" placeholder="0.50" min="0.50" step="0.50" value="0.50">
-            <button onclick="realizarDeposito()" class="btn-verde">
-                <i class="fa-solid fa-bolt"></i> Gerar PIX API
-            </button>
+
+            <!-- Etapa 1: valor -->
+            <div class="deposito-etapa" data-etapa="valor">
+                <p>Valor mínimo: R$ 0,50</p>
+                <input type="number" id="valor-deposito" placeholder="0.50" min="0.50" step="0.50" value="0.50">
+                <button onclick="gerarPixDeposito()" class="btn-verde">
+                    <i class="fa-solid fa-bolt"></i> Gerar PIX API
+                </button>
+            </div>
+
+            <!-- Etapa 2: QR fictício + confirmação (só aparece após gerar o PIX) -->
+            <div class="deposito-etapa deposito-etapa-qr" data-etapa="qr" hidden>
+                <div class="pix-qrcode" aria-hidden="true">
+                    <div class="pix-qrcode-quadro">
+                        <div class="pix-qrcode-canto pix-qrcode-canto-tl"></div>
+                        <div class="pix-qrcode-canto pix-qrcode-canto-tr"></div>
+                        <div class="pix-qrcode-canto pix-qrcode-canto-bl"></div>
+                    </div>
+                </div>
+
+                <p class="pix-valor-linha">Valor a pagar: <strong id="deposito-valor-exibido">R$ 0,00</strong></p>
+
+                <div class="input-icon-group">
+                    <input type="text" id="pix-copia-cola" readonly value="">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+
+                <button onclick="copiarChavePix()" class="btn-primario">
+                    <i class="fa-solid fa-copy"></i> Copiar Chave PIX Copia e Cola
+                </button>
+                <button onclick="confirmarPagamentoPix()" class="btn-verde">
+                    <i class="fa-solid fa-check"></i> Confirmar Pagamento
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Modal Saque (Apenas Domingos, Mínimo R$ 10, Taxa 10%) -->
+    <!-- Modal Saque — Nome, Chave PIX e Valor -->
     <div id="modal-sacar" class="modal">
         <div class="modal-conteudo">
             <div class="modal-header">
@@ -132,9 +180,31 @@
                 <h2>Solicitar Saque Automático</h2>
                 <span onclick="fecharModal('modal-sacar')" class="fechar" role="button" aria-label="Fechar">&times;</span>
             </div>
-            <p>Mínimo: R$ 10,00 | Taxa: 10%</p>
-            <p class="aviso-domingo"><i class="fa-solid fa-triangle-exclamation"></i> Saques liberados exclusivamente aos DOMINGOS.</p>
-            <input type="number" id="valor-saque" placeholder="10.00" min="10.00">
+
+            <div class="saque-regras">
+                <span class="badge badge-money">Mínimo: R$ 10,00</span>
+                <span class="badge badge-money">Taxa: 10%</span>
+            </div>
+            <p class="aviso-domingo">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Saques liberados exclusivamente aos <strong>DOMINGOS</strong>.
+            </p>
+
+            <div class="input-icon-group">
+                <input type="text" id="saque-nome" placeholder="Nome completo">
+                <i class="fa-solid fa-user"></i>
+            </div>
+
+            <div class="input-icon-group">
+                <input type="text" id="saque-chave-pix" placeholder="Chave PIX (CPF, e-mail ou telefone)">
+                <i class="fa-solid fa-key"></i>
+            </div>
+
+            <div class="input-icon-group">
+                <input type="number" id="valor-saque" placeholder="Valor do saque (mín. 10.00)" min="10.00">
+                <i class="fa-solid fa-sack-dollar"></i>
+            </div>
+
             <button onclick="realizarSaque()" class="btn-amarelo">
                 <i class="fa-solid fa-paper-plane"></i> Solicitar Saque API
             </button>
