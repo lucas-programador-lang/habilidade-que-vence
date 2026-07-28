@@ -827,6 +827,123 @@ button:active {
   box-shadow: 0 0 0 1px var(--gold-glow), 0 20px 40px -24px #000000c0;
 }
 
+.card-sala[hidden] {
+  display: none;
+}
+
+/* ============================================================
+   Jogo de cartas (estilo UNO simplificado)
+   ============================================================ */
+
+.jogo-uno {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 4px;
+  animation: fade-slide-up 0.4s var(--ease) both;
+}
+
+.jogo-uno[hidden] {
+  display: none;
+}
+
+.jogo-uno-oponentes {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.jogo-uno-oponente {
+  flex: 1;
+  min-width: 100px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+
+.jogo-uno-oponente-vez {
+  border-color: var(--gold);
+  box-shadow: 0 0 14px -4px var(--gold-glow);
+}
+
+.jogo-uno-oponente-nome {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.jogo-uno-oponente-cartas {
+  color: var(--gold-light);
+}
+
+.jogo-uno-mesa {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0;
+}
+
+.jogo-uno-info {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.jogo-uno-mao {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 4px 0 8px;
+}
+
+.carta-uno {
+  width: 54px;
+  height: 78px;
+  border-radius: 9px;
+  border: 2px solid #ffffff2e;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.carta-uno:not(:disabled) {
+  cursor: pointer;
+}
+
+.carta-uno:hover:not(:disabled) {
+  transform: translateY(-6px);
+  filter: brightness(1.1);
+  box-shadow: 0 12px 22px -10px #000000b0;
+}
+
+.carta-uno:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.carta-vermelho { background: linear-gradient(160deg, #e5484d, #a3282c); }
+.carta-verde { background: linear-gradient(160deg, #4cc38a, #1f7a4d); }
+.carta-azul { background: linear-gradient(160deg, #4098f0, #1c5a9e); }
+.carta-amarelo { background: linear-gradient(160deg, #f4c344, #b8891a); color: #241d00; }
+
+#btn-comprar-carta {
+  align-self: center;
+}
+
 @keyframes partida-andamento-brilho {
   0%, 100% { border-color: var(--gold-dark); }
   50%      { border-color: var(--gold); }
