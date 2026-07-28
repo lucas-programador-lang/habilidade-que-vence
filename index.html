@@ -34,6 +34,12 @@
         </label>
 
         <div class="user-panel">
+            <nav class="nav-links">
+                <a href="#salas"><i class="fa-solid fa-dice"></i> Salas</a>
+                <a href="#chat"><i class="fa-solid fa-comments"></i> Chat</a>
+                <a href="#indicacao"><i class="fa-solid fa-share-nodes"></i> Indicação</a>
+            </nav>
+
             <!-- Sub-painel financeiro: saldo + ações agrupados -->
             <div class="finance-panel">
                 <span id="user-saldo"><i class="fa-solid fa-sack-dollar"></i> Saldo: R$ 0,50</span>
@@ -43,6 +49,26 @@
                     </button>
                     <button onclick="abrirModal('modal-sacar')" class="btn-amarelo">
                         <i class="fa-solid fa-arrow-up-from-bracket"></i> Sacar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Menu de conta: perfil, alterar senha, sair -->
+            <div class="account-menu">
+                <button type="button" class="account-menu-toggle" onclick="alternarMenuConta(event)" aria-haspopup="true" aria-expanded="false">
+                    <span class="account-avatar"><i class="fa-solid fa-user"></i></span>
+                    <span id="account-nome" class="account-nome">Minha conta</span>
+                    <i class="fa-solid fa-chevron-down account-chevron"></i>
+                </button>
+                <div class="account-dropdown" id="account-dropdown" hidden>
+                    <button type="button" onclick="abrirModalPerfil()">
+                        <i class="fa-solid fa-id-card"></i> Perfil
+                    </button>
+                    <button type="button" onclick="abrirModal('modal-senha')">
+                        <i class="fa-solid fa-key"></i> Alterar senha
+                    </button>
+                    <button type="button" class="account-sair" onclick="sairDaConta()">
+                        <i class="fa-solid fa-right-from-bracket"></i> Sair
                     </button>
                 </div>
             </div>
@@ -59,72 +85,78 @@
     </header>
 
     <main class="container">
-        <section class="banner-desafio">
-            <h2><i class="fa-solid fa-trophy"></i> Desafio da Diretoria Sra Panda!</h2>
-            <p>Jogue contra seus aliados, mostre sua estratégia e conquiste o dinheiro acumulado! Partidas a partir de <strong>R$ 0,50</strong> (Mínimo 4 participantes).</p>
-        </section>
+        <div class="grid-dashboard">
+            <div class="coluna-principal">
+                <section class="banner-desafio">
+                    <h2><i class="fa-solid fa-trophy"></i> Desafio da Diretoria Sra Panda!</h2>
+                    <p>Jogue contra seus aliados, mostre sua estratégia e conquiste o dinheiro acumulado! Partidas a partir de <strong>R$ 0,50</strong> (Mínimo 4 participantes).</p>
+                </section>
 
-        <!-- Bloco 1: Salas de Jogos -->
-        <section class="lote-partidas">
-            <h3><i class="fa-solid fa-users"></i> Salas de Jogos Clássicos (4+ Participantes)</h3>
+                <!-- Bloco 1: Salas de Jogos -->
+                <section class="lote-partidas" id="salas">
+                    <h3><i class="fa-solid fa-users"></i> Salas de Jogos Clássicos (4+ Participantes)</h3>
 
-            <div class="card-sala">
-                <div class="card-sala-info">
-                    <div class="card-sala-topo">
-                        <h4>Sala Estratégia #1</h4>
-                        <span class="badge badge-money">Valendo em Real</span>
-                    </div>
-                    <p class="card-sala-valores">
-                        <span><i class="fa-solid fa-coins"></i> Investimento: <strong>R$ 0,50</strong></span>
-                        <span><i class="fa-solid fa-trophy"></i> Prêmio Acumulado: <strong>R$ 2,00+</strong></span>
-                    </p>
+                    <div class="card-sala">
+                        <div class="card-sala-info">
+                            <div class="card-sala-topo">
+                                <h4>Sala Estratégia #1</h4>
+                                <span class="badge badge-money">Valendo em Real</span>
+                            </div>
+                            <p class="card-sala-valores">
+                                <span><i class="fa-solid fa-coins"></i> Investimento: <strong>R$ 0,50</strong></span>
+                                <span><i class="fa-solid fa-trophy"></i> Prêmio Acumulado: <strong>R$ 2,00+</strong></span>
+                            </p>
 
-                    <div class="progresso-sala">
-                        <div class="progresso-sala-barra">
-                            <div class="progresso-sala-preenchido" style="width: 25%;"></div>
+                            <div class="progresso-sala">
+                                <div class="progresso-sala-barra">
+                                    <div class="progresso-sala-preenchido" style="width: 25%;"></div>
+                                </div>
+                                <span class="badge badge-open">
+                                    <i class="fa-solid fa-circle"></i>
+                                    <span id="contador-players">1</span>/4 confirmados
+                                </span>
+                            </div>
                         </div>
-                        <span class="badge badge-open">
-                            <i class="fa-solid fa-circle"></i>
-                            <span id="contador-players">1</span>/4 confirmados
-                        </span>
+                        <button onclick="entrarNaSala(0.50)" class="btn-primario btn-entrar-sala">
+                            <i class="fa-solid fa-play"></i> Entrar na Partida (R$ 0,50)
+                        </button>
                     </div>
-                </div>
-                <button onclick="entrarNaSala(0.50)" class="btn-primario btn-entrar-sala">
-                    <i class="fa-solid fa-play"></i> Entrar na Partida (R$ 0,50)
-                </button>
+                </section>
             </div>
-        </section>
 
-        <!-- Bloco 2: Chat -->
-        <section class="chat-container">
-            <h3><i class="fa-solid fa-comments"></i> Chat da Partida
-                <span class="badge badge-shield"><i class="fa-solid fa-shield-halved"></i> Anti-Fraude Ativo</span>
-            </h3>
-            <div id="chat-mensagens">
-                <div class="msg-sistema"><i class="fa-solid fa-circle-info"></i> Sistema Anti-Hacker e Antifraude ativado. Boa sorte aos participantes!</div>
-            </div>
-            <div class="chat-input-area">
-                <input type="text" id="input-chat" placeholder="Converse com seu oponente...">
-                <button onclick="enviarMensagem()" class="btn-primario">
-                    <i class="fa-solid fa-paper-plane"></i> Enviar
-                </button>
-            </div>
-        </section>
+            <div class="coluna-lateral">
+                <!-- Bloco 2: Chat -->
+                <section class="chat-container" id="chat">
+                    <h3><i class="fa-solid fa-comments"></i> Chat da Partida
+                        <span class="badge badge-shield"><i class="fa-solid fa-shield-halved"></i> Anti-Fraude Ativo</span>
+                    </h3>
+                    <div id="chat-mensagens">
+                        <div class="msg-sistema"><i class="fa-solid fa-circle-info"></i> Sistema Anti-Hacker e Antifraude ativado. Boa sorte aos participantes!</div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="input-chat" placeholder="Converse com seu oponente...">
+                        <button onclick="enviarMensagem()" class="btn-primario">
+                            <i class="fa-solid fa-paper-plane"></i> Enviar
+                        </button>
+                    </div>
+                </section>
 
-        <!-- Bloco 3: Indicação -->
-        <section class="indicacao-container">
-            <h3><i class="fa-solid fa-share-nodes"></i> Seu Link de Indicação</h3>
-            <p class="indicacao-destaque">
-                <span class="badge badge-money">8% de comissão</span>
-                Compartilhe seu link e ganhe 8% de tudo o que seus indicados depositarem:
-            </p>
-            <div class="indicacao-input-row">
-                <input type="text" id="link-afiliado" readonly value="https://habilidadequevence.com/register.html?ref=USER123">
-                <button onclick="copiarLink()" class="btn-primario">
-                    <i class="fa-solid fa-copy"></i> Copiar Link
-                </button>
+                <!-- Bloco 3: Indicação -->
+                <section class="indicacao-container" id="indicacao">
+                    <h3><i class="fa-solid fa-share-nodes"></i> Seu Link de Indicação</h3>
+                    <p class="indicacao-destaque">
+                        <span class="badge badge-money">8% de comissão</span>
+                        Compartilhe seu link e ganhe 8% de tudo o que seus indicados depositarem:
+                    </p>
+                    <div class="indicacao-input-row">
+                        <input type="text" id="link-afiliado" readonly value="https://habilidadequevence.com/register.html?ref=USER123">
+                        <button onclick="copiarLink()" class="btn-primario">
+                            <i class="fa-solid fa-copy"></i> Copiar Link
+                        </button>
+                    </div>
+                </section>
             </div>
-        </section>
+        </div>
     </main>
 
     <!-- Modal Depósito PIX Automático — duas etapas -->
@@ -207,6 +239,61 @@
 
             <button onclick="realizarSaque()" class="btn-amarelo">
                 <i class="fa-solid fa-paper-plane"></i> Solicitar Saque API
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Alterar Senha -->
+    <div id="modal-senha" class="modal">
+        <div class="modal-conteudo">
+            <div class="modal-header">
+                <i class="fa-solid fa-key modal-header-icon"></i>
+                <h2>Alterar senha</h2>
+                <span onclick="fecharModal('modal-senha')" class="fechar" role="button" aria-label="Fechar">&times;</span>
+            </div>
+
+            <div class="input-icon-group">
+                <input type="password" id="senha-atual" placeholder="Senha atual" autocomplete="current-password">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+
+            <div class="input-icon-group">
+                <input type="password" id="senha-nova" placeholder="Nova senha (mín. 6 caracteres)" autocomplete="new-password">
+                <i class="fa-solid fa-key"></i>
+            </div>
+
+            <div class="input-icon-group">
+                <input type="password" id="senha-confirmar" placeholder="Confirmar nova senha" autocomplete="new-password">
+                <i class="fa-solid fa-check-double"></i>
+            </div>
+
+            <button onclick="alterarSenha()" class="btn-primario">
+                <i class="fa-solid fa-floppy-disk"></i> Salvar nova senha
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Perfil -->
+    <div id="modal-perfil" class="modal">
+        <div class="modal-conteudo">
+            <div class="modal-header">
+                <i class="fa-solid fa-id-card modal-header-icon"></i>
+                <h2>Meu perfil</h2>
+                <span onclick="fecharModal('modal-perfil')" class="fechar" role="button" aria-label="Fechar">&times;</span>
+            </div>
+
+            <div class="input-icon-group">
+                <input type="text" id="perfil-nome" placeholder="Nome de exibição">
+                <i class="fa-solid fa-user"></i>
+            </div>
+
+            <div class="input-icon-group">
+                <input type="email" id="perfil-email" readonly>
+                <i class="fa-solid fa-envelope"></i>
+            </div>
+
+            <button onclick="salvarPerfil()" class="btn-verde">
+                <i class="fa-solid fa-floppy-disk"></i> Salvar alterações
             </button>
         </div>
     </div>
