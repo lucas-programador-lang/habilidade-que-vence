@@ -1,25 +1,26 @@
 /* ============================================================
-   HABILIDADE QUE VENCE — Design System v4 (Cyber Panda / Obsidian)
-   Padrão iGaming premium. Duas cores de assinatura, cada uma com
-   um trabalho fixo e nunca misturado:
-     ciano neon      -> jogo e ação (salas, chat, links, hovers)
-     esmeralda elétrico -> dinheiro (saldo, depósito, badges $)
+   HABILIDADE QUE VENCE — Design System v5 (Cyber Panda / Obsidian)
+   Quatro cores de ação, cada uma com um trabalho fixo:
+     ciano elétrico   -> jogo (salas, chat, links)
+     esmeralda neon   -> depósito / dinheiro entrando
+     dourado          -> saque / VIP
+     coral            -> segurança / sair / perigo
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
   /* --- Base obsidian --- */
-  --bg: #0b0e14;
-  --bg-elevated: #11161f;
-  --surface: #161c29;
-  --surface-hover: #1c2334;
-  --border: #232b3d;
-  --border-strong: #37435c66;
+  --bg: #060913;
+  --bg-elevated: #0d1222;
+  --surface: #121a30;
+  --surface-hover: #172140;
+  --border: #1a2440;
+  --border-strong: #2c3a5f80;
   --divisoria: #ffffff14;
 
   /* --- Vidro (glassmorphism) --- */
-  --glass-bg: rgba(17, 22, 31, 0.6);
+  --glass-bg: rgba(13, 18, 34, 0.6);
   --glass-border: rgba(255, 255, 255, 0.07);
   --glass-blur: 22px;
 
@@ -28,33 +29,43 @@
   --text-secondary: #97a2ba;
   --text-muted: #5c667e;
 
-  /* --- Assinatura: jogo/ação (ciano neon) --- */
+  /* --- Ação: jogo (ciano elétrico) --- */
   --cyber: #00f2fe;
   --cyber-2: #4facfe;
   --cyber-glow: #00f2fe4d;
 
-  /* --- Assinatura: dinheiro (esmeralda elétrico) --- */
+  /* --- Ação: depósito (esmeralda neon) --- */
   --emerald: #00e676;
   --emerald-dark: #00a854;
   --emerald-glow: #00e6764d;
 
+  /* --- Ação: saque / VIP (dourado) --- */
+  --gold: #ffd700;
+  --gold-dark: #c9a900;
+  --gold-glow: #ffd7004d;
+
+  /* --- Ação: segurança / sair (coral) --- */
+  --coral: #ff4d4d;
+  --coral-dark: #d63a3a;
+  --coral-glow: #ff4d4d4d;
+
   /* --- Semântica dos botões --- */
-  --ok: #00e676;
-  --ok-dark: #00a854;
-  --warn: #f2b84b;
-  --warn-dark: #c9922e;
+  --ok: var(--emerald);
+  --ok-dark: var(--emerald-dark);
+  --warn: var(--gold);
+  --warn-dark: var(--gold-dark);
   --primary: #00c2ea;
-  --primary-2: #4facfe;
+  --primary-2: var(--cyber-2);
   --primary-dark: #0c8fae;
-  --danger: #ff4d6a;
-  --danger-dark: #c72f4a;
+  --danger: var(--coral);
+  --danger-dark: var(--coral-dark);
   --whatsapp: #25d366;
 
   /* --- Layout --- */
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
-  --container-max: 920px;
+  --container-max: 1120px;
 
   /* --- Tipografia --- */
   --font-display: 'Chakra Petch', 'Segoe UI', sans-serif;
@@ -81,6 +92,10 @@
   padding: 0;
   box-sizing: border-box;
   font-family: var(--font-body);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 html, body {
@@ -123,7 +138,6 @@ label:focus-visible {
 
 /* ============================================================
    Fundo — grid cyber + marca d'água panda (opacidade ~0.02)
-   Tudo em um único elemento fixo atrás do conteúdo.
    ============================================================ */
 
 .panda-watermark {
@@ -132,18 +146,13 @@ label:focus-visible {
   z-index: -1;
   pointer-events: none;
   background:
-    /* orelhas (dois círculos superiores) */
     radial-gradient(circle 90px at 80% 6%, #ffffff05 0%, transparent 70%),
     radial-gradient(circle 90px at 97% 8%, #ffffff05 0%, transparent 70%),
-    /* cabeça */
     radial-gradient(circle 260px at 89% 18%, #ffffff03 0%, transparent 72%),
-    /* olhos (duas manchas escuras, características do panda) */
     radial-gradient(ellipse 26px 34px at 84% 17%, #00000030 0%, transparent 75%),
     radial-gradient(ellipse 26px 34px at 94% 17%, #00000030 0%, transparent 75%),
-    /* halos de cor da marca, bem discretos */
     radial-gradient(ellipse 900px 520px at 15% -10%, #00e6760f 0%, transparent 60%),
     radial-gradient(ellipse 800px 500px at 100% 100%, #00f2fe0d 0%, transparent 60%),
-    /* grid cyber */
     repeating-linear-gradient(0deg, #ffffff05 0px, #ffffff05 1px, transparent 1px, transparent 42px),
     repeating-linear-gradient(90deg, #ffffff05 0px, #ffffff05 1px, transparent 1px, transparent 42px),
     var(--bg);
@@ -204,6 +213,11 @@ label:focus-visible {
   to   { width: 0%; }
 }
 
+@keyframes auth-orbs-flutuar {
+  0%, 100% { transform: translate(0, 0); }
+  50%      { transform: translate(-16px, 14px); }
+}
+
 .banner-desafio,
 .lote-partidas,
 .chat-container,
@@ -217,15 +231,17 @@ label:focus-visible {
    ============================================================ */
 
 header {
-  background: linear-gradient(180deg, var(--bg-elevated) 0%, #090c12 100%);
+  background: linear-gradient(180deg, var(--bg-elevated) 0%, #07090f 100%);
   padding: 1.1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.25rem;
   border-bottom: 1px solid var(--border);
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 header::after {
@@ -241,6 +257,7 @@ header::after {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .logo-icon {
@@ -294,8 +311,40 @@ header::after {
 .user-panel {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
+  margin-left: auto;
+}
+
+/* --- Navmenu (âncoras pras seções) --- */
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 13px;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.nav-links a i {
+  color: var(--cyber-2);
+  font-size: 0.8rem;
+}
+
+.nav-links a:hover {
+  color: var(--text-primary);
+  background: var(--surface);
 }
 
 .finance-panel {
@@ -338,6 +387,125 @@ header::after {
   margin-right: 4px;
 }
 
+/* --- Menu de conta (dropdown) --- */
+
+.account-menu {
+  position: relative;
+}
+
+.account-menu-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 12px 7px 7px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.account-menu-toggle:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+}
+
+.account-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, #00f2fe22 0%, transparent 70%);
+  border: 1px solid #00f2fe35;
+  color: var(--cyber-2);
+  font-size: 0.8rem;
+}
+
+.account-nome {
+  font-size: 0.85rem;
+  font-weight: 600;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-chevron {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+
+.account-menu-toggle[aria-expanded="true"] .account-chevron {
+  transform: rotate(180deg);
+}
+
+.account-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 210px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 8px;
+  box-shadow: 0 24px 50px -20px #000000d0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 60;
+  animation: fade-slide-up 0.2s var(--ease) both;
+}
+
+.account-dropdown[hidden] {
+  display: none;
+}
+
+.account-dropdown button {
+  width: 100%;
+  justify-content: flex-start;
+  background: none;
+  color: var(--text-secondary);
+  font-weight: 500;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  box-shadow: none;
+}
+
+.account-dropdown button:hover {
+  background: var(--surface);
+  color: var(--text-primary);
+  transform: none;
+  filter: none;
+}
+
+.account-dropdown button i {
+  color: var(--cyber-2);
+  width: 16px;
+}
+
+.account-dropdown .account-sair {
+  color: var(--coral);
+  border-top: 1px solid var(--divisoria);
+  margin-top: 4px;
+  padding-top: 12px;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
+
+.account-dropdown .account-sair:hover {
+  background: #ff4d4d16;
+  color: var(--coral);
+}
+
+.account-dropdown .account-sair i {
+  color: var(--coral);
+}
+
 /* ============================================================
    Botões
    ============================================================ */
@@ -375,7 +543,8 @@ button:active {
 
 .btn-amarelo {
   background: linear-gradient(135deg, var(--warn) 0%, var(--warn-dark) 100%);
-  box-shadow: 0 4px 16px -4px #f2b84b55;
+  color: #241d00;
+  box-shadow: 0 4px 16px -4px var(--gold-glow);
 }
 
 .btn-primario {
@@ -385,7 +554,7 @@ button:active {
 
 .btn-perigo {
   background: linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%);
-  box-shadow: 0 4px 16px -4px #ff4d6a55;
+  box-shadow: 0 4px 16px -4px var(--coral-glow);
 }
 
 .btn-admin {
@@ -428,7 +597,6 @@ button:active {
   box-shadow: 0 4px 14px -4px #25d36680;
 }
 
-/* Botão de entrar na sala: micro-escala + brilho + shine no hover */
 .btn-entrar-sala {
   position: relative;
   overflow: hidden;
@@ -468,7 +636,7 @@ button:active {
 }
 
 /* ============================================================
-   Container & painéis
+   Container & grid assimétrico
    ============================================================ */
 
 .container {
@@ -476,6 +644,17 @@ button:active {
   margin: 2.25rem auto;
   padding: 0 1.25rem;
   width: 100%;
+}
+
+.grid-dashboard {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.coluna-principal,
+.coluna-lateral {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -527,7 +706,7 @@ button:active {
 }
 
 .banner-desafio p {
-  max-width: 560px;
+  max-width: 480px;
   margin: 0 auto;
   font-size: 0.95rem;
   line-height: 1.6;
@@ -536,8 +715,6 @@ button:active {
 .banner-desafio strong {
   color: var(--emerald);
 }
-
-/* --- Cabeçalhos de bloco: ícone + título + linha divisória --- */
 
 .lote-partidas h3,
 .chat-container h3,
@@ -690,10 +867,6 @@ button:active {
   animation: progresso-sala-brilho 2.4s ease-in-out infinite;
 }
 
-.btn-entrar-sala {
-  align-self: center;
-}
-
 /* ============================================================
    Chat
    ============================================================ */
@@ -732,7 +905,6 @@ button:active {
   margin-top: 8px;
 }
 
-/* Caixa de alerta isolada pra mensagem de sistema */
 .msg-sistema {
   color: var(--emerald);
   display: flex;
@@ -831,46 +1003,100 @@ button:active {
   min-height: 100vh;
   padding: 1.5rem;
   background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-orbs {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.auth-orbs::before,
+.auth-orbs::after {
+  content: '';
+  position: absolute;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  filter: blur(90px);
+  animation: auth-orbs-flutuar 9s ease-in-out infinite;
+}
+
+.auth-orbs::before {
+  top: -180px;
+  left: -160px;
+  background: radial-gradient(circle, #00f2fe22 0%, transparent 70%);
+}
+
+.auth-orbs::after {
+  bottom: -200px;
+  right: -160px;
+  background: radial-gradient(circle, #00e67618 0%, transparent 70%);
+  animation-delay: -4.5s;
 }
 
 .auth-container {
   width: 100%;
-  max-width: 380px;
+  max-width: 390px;
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
-  padding: 2.5rem 2.25rem;
+  padding: 2.75rem 2.4rem 2.5rem;
   text-align: center;
-  box-shadow: 0 0 0 1px var(--cyber-glow), 0 30px 60px -25px #000000b0;
+  box-shadow: 0 40px 80px -30px #000000d0;
   animation: fade-slide-up 0.5s var(--ease) both;
   position: relative;
   z-index: 1;
+  overflow: hidden;
+}
+
+.auth-container::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--cyber) 0%, var(--cyber-2) 45%, var(--emerald) 100%);
 }
 
 .auth-logo {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 1.75rem;
+  gap: 14px;
+  margin-bottom: 2rem;
 }
 
 .auth-logo .logo-icon {
-  font-size: 1.8rem;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1.5rem;
   color: var(--cyber-2);
+  background: radial-gradient(circle, #00f2fe1a 0%, transparent 70%);
+  border: 1px solid #00f2fe30;
+  box-shadow: 0 0 24px -4px var(--cyber-glow);
 }
 
 .auth-subtitulo {
   color: var(--text-secondary);
   font-size: 0.85rem;
-  margin-top: 4px;
+  margin-top: 6px;
+  line-height: 1.5;
 }
 
 .auth-container h2 {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: 1.35rem;
+  letter-spacing: 0.01em;
   background: linear-gradient(135deg, #ffffff 0%, var(--cyber-2) 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -880,7 +1106,7 @@ button:active {
 .auth-container form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 .input-icon-group {
@@ -921,11 +1147,11 @@ button:active {
 }
 
 .input-icon-group.invalido input {
-  border-color: var(--danger);
+  border-color: var(--coral);
 }
 
 .input-icon-group.invalido i {
-  color: var(--danger);
+  color: var(--coral);
 }
 
 .input-icon-group.valido input {
@@ -938,7 +1164,7 @@ button:active {
 
 .campo-erro {
   text-align: left;
-  color: var(--danger);
+  color: var(--coral);
   font-size: 0.78rem;
   margin-top: -6px;
   display: flex;
@@ -996,13 +1222,14 @@ button:active {
   display: none;
   position: fixed;
   inset: 0;
-  background: #04050ad9;
+  background: #030509d9;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   justify-content: center;
   align-items: center;
   padding: 1.5rem;
   animation: fade-in 0.2s var(--ease) both;
+  z-index: 200;
 }
 
 .modal.fechando {
@@ -1097,13 +1324,13 @@ button:active {
 }
 
 .modal-conteudo .aviso-domingo {
-  color: var(--warn);
+  color: var(--gold);
   font-size: 0.85rem;
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #f2b84b14;
-  border: 1px solid #f2b84b35;
+  background: #ffd70014;
+  border: 1px solid #ffd70035;
   border-radius: var(--radius-sm);
   padding: 10px 12px;
 }
@@ -1174,13 +1401,23 @@ button:active {
   font-family: var(--font-display);
 }
 
+/* --- Alterar senha: validação visual de correspondência --- */
+
+.input-icon-group.senha-confere input {
+  border-color: var(--ok);
+}
+
+.input-icon-group.senha-nao-confere input {
+  border-color: var(--coral);
+}
+
 /* ============================================================
-   Toast notifications — mini-card com barra de progresso
+   Toast notifications — topo direito, mini-card com progresso
    ============================================================ */
 
 .toast-container {
   position: fixed;
-  bottom: 20px;
+  top: 20px;
   right: 20px;
   z-index: 999;
   display: flex;
@@ -1259,13 +1496,13 @@ button:active {
 .toast-sucesso .toast-icon { color: var(--emerald); filter: drop-shadow(0 0 6px var(--emerald-glow)); }
 .toast-sucesso .toast-progresso-barra { background: var(--emerald); }
 
-.toast-erro { border-color: #ff4d6a3d; }
-.toast-erro .toast-icon { color: var(--danger); }
-.toast-erro .toast-progresso-barra { background: var(--danger); }
+.toast-erro { border-color: #ff4d4d3d; }
+.toast-erro .toast-icon { color: var(--coral); }
+.toast-erro .toast-progresso-barra { background: var(--coral); }
 
-.toast-aviso { border-color: #f2b84b3d; }
-.toast-aviso .toast-icon { color: var(--warn); }
-.toast-aviso .toast-progresso-barra { background: var(--warn); }
+.toast-aviso { border-color: #ffd7003d; }
+.toast-aviso .toast-icon { color: var(--gold); }
+.toast-aviso .toast-progresso-barra { background: var(--gold); }
 
 .toast-info { border-color: #00f2fe3d; }
 .toast-info .toast-icon { color: var(--cyber-2); }
@@ -1275,12 +1512,12 @@ button:active {
   .toast-container {
     left: 12px;
     right: 12px;
-    bottom: 12px;
+    top: 12px;
     max-width: none;
   }
 
   .toast {
-    transform: translateY(120%);
+    transform: translateY(-120%);
   }
 
   .toast.toast-visivel {
@@ -1291,6 +1528,12 @@ button:active {
 /* ============================================================
    Responsividade (mobile-first)
    ============================================================ */
+
+@media (max-width: 980px) {
+  .grid-dashboard {
+    grid-template-columns: 1fr;
+  }
+}
 
 @media (max-width: 720px) {
   header {
@@ -1307,14 +1550,25 @@ button:active {
     overflow: hidden;
     opacity: 0;
     transform: translateY(-6px);
-    transition: max-height 0.35s var(--ease), opacity 0.25s var(--ease), transform 0.25s var(--ease);
+    transition: max-height 0.4s var(--ease), opacity 0.25s var(--ease), transform 0.25s var(--ease);
+    align-items: stretch;
   }
 
   .nav-toggle-input:checked ~ .user-panel {
-    max-height: 400px;
+    max-height: 500px;
     opacity: 1;
     transform: translateY(0);
     margin-top: 12px;
+  }
+
+  .nav-links {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+  }
+
+  .nav-links a {
+    padding: 11px 13px;
   }
 
   .finance-panel {
@@ -1332,6 +1586,19 @@ button:active {
     justify-content: center;
   }
 
+  .account-menu-toggle {
+    width: 100%;
+    justify-content: space-between;
+    border-radius: var(--radius-md);
+  }
+
+  .account-dropdown {
+    position: static;
+    width: 100%;
+    margin-top: 6px;
+    box-shadow: none;
+  }
+
   .header-links {
     width: 100%;
   }
@@ -1344,6 +1611,14 @@ button:active {
   .container {
     margin: 1.25rem auto;
     padding: 0 1rem;
+  }
+
+  .grid-dashboard {
+    gap: 1.1rem;
+  }
+
+  .coluna-principal,
+  .coluna-lateral {
     gap: 1.1rem;
   }
 
@@ -1378,6 +1653,6 @@ button:active {
 
 @media (min-width: 1600px) {
   .container {
-    max-width: 1060px;
+    max-width: 1280px;
   }
 }
