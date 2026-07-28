@@ -1,64 +1,53 @@
 /* ============================================================
-   HABILIDADE QUE VENCE — Design System v5 (Cyber Panda / Obsidian)
-   Quatro cores de ação, cada uma com um trabalho fixo:
-     ciano elétrico   -> jogo (salas, chat, links)
-     esmeralda neon   -> depósito / dinheiro entrando
-     dourado          -> saque / VIP
-     coral            -> segurança / sair / perigo
+   HABILIDADE QUE VENCE — Design System v6 (Luxo Preto & Dourado)
+   Paleta de assinatura: preto profundo + dourado metálico.
+   Vermelho-vinho aparece só onde é semanticamente inevitável
+   (erro, excluir conta, sair) — em quantidade mínima.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* --- Base obsidian --- */
-  --bg: #060913;
-  --bg-elevated: #0d1222;
-  --surface: #121a30;
-  --surface-hover: #172140;
-  --border: #1a2440;
-  --border-strong: #2c3a5f80;
-  --divisoria: #ffffff14;
+  /* --- Base: preto quente, não puro --- */
+  --bg: #0a0806;
+  --bg-elevated: #120e08;
+  --surface: #17130b;
+  --surface-hover: #1f190e;
+  --border: #2a2113;
+  --border-strong: #4a3a1f90;
+  --divisoria: #d4af3722;
 
   /* --- Vidro (glassmorphism) --- */
-  --glass-bg: rgba(13, 18, 34, 0.6);
-  --glass-border: rgba(255, 255, 255, 0.07);
-  --glass-blur: 22px;
+  --glass-bg: rgba(18, 14, 8, 0.68);
+  --glass-border: rgba(212, 175, 55, 0.14);
+  --glass-blur: 20px;
 
   /* --- Texto --- */
-  --text-primary: #f3f6fb;
-  --text-secondary: #97a2ba;
-  --text-muted: #5c667e;
+  --text-primary: #f3ead1;
+  --text-secondary: #b8a878;
+  --text-muted: #6f6448;
 
-  /* --- Ação: jogo (ciano elétrico) --- */
-  --cyber: #00f2fe;
-  --cyber-2: #4facfe;
-  --cyber-glow: #00f2fe4d;
+  /* --- Assinatura: dourado metálico --- */
+  --gold: #d4af37;
+  --gold-light: #f0d374;
+  --gold-dark: #a8842c;
+  --gold-glow: #d4af374d;
 
-  /* --- Ação: depósito (esmeralda neon) --- */
-  --emerald: #00e676;
-  --emerald-dark: #00a854;
-  --emerald-glow: #00e6764d;
+  /* --- Vermelho-vinho: só pra erro/perigo/sair --- */
+  --wine: #b3413f;
+  --wine-dark: #832d2c;
+  --wine-glow: #b3413f4d;
 
-  /* --- Ação: saque / VIP (dourado) --- */
-  --gold: #ffd700;
-  --gold-dark: #c9a900;
-  --gold-glow: #ffd7004d;
-
-  /* --- Ação: segurança / sair (coral) --- */
-  --coral: #ff4d4d;
-  --coral-dark: #d63a3a;
-  --coral-glow: #ff4d4d4d;
-
-  /* --- Semântica dos botões --- */
-  --ok: var(--emerald);
-  --ok-dark: var(--emerald-dark);
-  --warn: var(--gold);
-  --warn-dark: var(--gold-dark);
-  --primary: #00c2ea;
-  --primary-2: var(--cyber-2);
-  --primary-dark: #0c8fae;
-  --danger: var(--coral);
-  --danger-dark: var(--coral-dark);
+  /* --- Semântica dos botões (tudo deriva do dourado, exceto perigo) --- */
+  --ok: var(--gold);
+  --ok-dark: var(--gold-dark);
+  --warn: var(--gold-light);
+  --warn-dark: var(--gold);
+  --primary: var(--gold);
+  --primary-2: var(--gold-light);
+  --primary-dark: var(--gold-dark);
+  --danger: var(--wine);
+  --danger-dark: var(--wine-dark);
   --whatsapp: #25d366;
 
   /* --- Layout --- */
@@ -68,7 +57,7 @@
   --container-max: 1120px;
 
   /* --- Tipografia --- */
-  --font-display: 'Chakra Petch', 'Segoe UI', sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
   --font-body: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
   /* --- Movimento --- */
@@ -125,6 +114,7 @@ p {
 
 strong {
   font-weight: 700;
+  color: var(--text-primary);
 }
 
 a:focus-visible,
@@ -132,12 +122,13 @@ button:focus-visible,
 input:focus-visible,
 label:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px var(--cyber-glow), 0 0 0 1px var(--cyber);
+  box-shadow: 0 0 0 3px var(--gold-glow), 0 0 0 1px var(--gold);
   border-radius: var(--radius-sm);
 }
 
 /* ============================================================
-   Fundo — grid cyber + marca d'água panda (opacidade ~0.02)
+   Fundo — textura art-deco sutil (linhas diagonais douradas
+   quase invisíveis) + marca d'água do panda a 0.02 de opacidade
    ============================================================ */
 
 .panda-watermark {
@@ -146,15 +137,15 @@ label:focus-visible {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(circle 90px at 80% 6%, #ffffff05 0%, transparent 70%),
-    radial-gradient(circle 90px at 97% 8%, #ffffff05 0%, transparent 70%),
-    radial-gradient(circle 260px at 89% 18%, #ffffff03 0%, transparent 72%),
-    radial-gradient(ellipse 26px 34px at 84% 17%, #00000030 0%, transparent 75%),
-    radial-gradient(ellipse 26px 34px at 94% 17%, #00000030 0%, transparent 75%),
-    radial-gradient(ellipse 900px 520px at 15% -10%, #00e6760f 0%, transparent 60%),
-    radial-gradient(ellipse 800px 500px at 100% 100%, #00f2fe0d 0%, transparent 60%),
-    repeating-linear-gradient(0deg, #ffffff05 0px, #ffffff05 1px, transparent 1px, transparent 42px),
-    repeating-linear-gradient(90deg, #ffffff05 0px, #ffffff05 1px, transparent 1px, transparent 42px),
+    radial-gradient(circle 90px at 80% 6%, #d4af3708 0%, transparent 70%),
+    radial-gradient(circle 90px at 97% 8%, #d4af3708 0%, transparent 70%),
+    radial-gradient(circle 260px at 89% 18%, #d4af3705 0%, transparent 72%),
+    radial-gradient(ellipse 26px 34px at 84% 17%, #00000040 0%, transparent 75%),
+    radial-gradient(ellipse 26px 34px at 94% 17%, #00000040 0%, transparent 75%),
+    radial-gradient(ellipse 1000px 600px at 50% -15%, #d4af3712 0%, transparent 60%),
+    radial-gradient(ellipse 800px 500px at 100% 100%, #d4af370a 0%, transparent 60%),
+    repeating-linear-gradient(45deg, #d4af3706 0px, #d4af3706 1px, transparent 1px, transparent 46px),
+    repeating-linear-gradient(-45deg, #d4af3706 0px, #d4af3706 1px, transparent 1px, transparent 46px),
     var(--bg);
 }
 
@@ -188,13 +179,13 @@ label:focus-visible {
 }
 
 @keyframes pulse-money {
-  0%, 100% { text-shadow: 0 0 10px var(--emerald-glow); }
-  50%      { text-shadow: 0 0 22px var(--emerald-glow); }
+  0%, 100% { text-shadow: 0 0 10px var(--gold-glow); }
+  50%      { text-shadow: 0 0 22px var(--gold-glow); }
 }
 
 @keyframes pulse-dot {
-  0%, 100% { box-shadow: 0 0 0 0 #00e67666; }
-  50%      { box-shadow: 0 0 0 5px #00e67600; }
+  0%, 100% { box-shadow: 0 0 0 0 #d4af3766; }
+  50%      { box-shadow: 0 0 0 5px #d4af3700; }
 }
 
 @keyframes progresso-sala-brilho {
@@ -231,7 +222,7 @@ label:focus-visible {
    ============================================================ */
 
 header {
-  background: linear-gradient(180deg, var(--bg-elevated) 0%, #07090f 100%);
+  background: linear-gradient(180deg, var(--bg-elevated) 0%, #080604 100%);
   padding: 1.1rem 2rem;
   display: flex;
   justify-content: space-between;
@@ -249,8 +240,8 @@ header::after {
   position: absolute;
   left: 0; right: 0; bottom: -1px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--cyber) 40%, var(--emerald) 60%, transparent);
-  opacity: 0.5;
+  background: linear-gradient(90deg, transparent, var(--gold) 50%, transparent);
+  opacity: 0.6;
 }
 
 .logo {
@@ -261,17 +252,17 @@ header::after {
 }
 
 .logo-icon {
-  color: var(--cyber-2);
+  color: var(--gold);
   font-size: 1.3rem;
-  filter: drop-shadow(0 0 6px var(--cyber-glow));
+  filter: drop-shadow(0 0 6px var(--gold-glow));
 }
 
 .logo h1 {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   letter-spacing: 0.02em;
-  background: linear-gradient(135deg, #ffffff 0%, var(--cyber-2) 100%);
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, var(--gold-dark) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -316,8 +307,6 @@ header::after {
   margin-left: auto;
 }
 
-/* --- Navmenu (âncoras pras seções) --- */
-
 .nav-links {
   display: flex;
   align-items: center;
@@ -338,13 +327,37 @@ header::after {
 }
 
 .nav-links a i {
-  color: var(--cyber-2);
+  color: var(--gold);
   font-size: 0.8rem;
 }
 
 .nav-links a:hover {
   color: var(--text-primary);
   background: var(--surface);
+}
+
+.nav-links a.ativo {
+  color: var(--text-primary);
+  background: #d4af3714;
+  position: relative;
+}
+
+.nav-links a.ativo i {
+  color: var(--gold);
+  filter: drop-shadow(0 0 6px var(--gold-glow));
+}
+
+.nav-links a.ativo::before {
+  content: '';
+  position: absolute;
+  left: -2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--gold-light), var(--gold-dark));
+  box-shadow: 0 0 10px var(--gold-glow);
 }
 
 .finance-panel {
@@ -376,7 +389,7 @@ header::after {
   font-family: var(--font-display);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: var(--emerald);
+  color: var(--gold);
   font-size: 1.05rem;
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -418,9 +431,9 @@ header::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle, #00f2fe22 0%, transparent 70%);
-  border: 1px solid #00f2fe35;
-  color: var(--cyber-2);
+  background: radial-gradient(circle, #d4af3722 0%, transparent 70%);
+  border: 1px solid #d4af3740;
+  color: var(--gold);
   font-size: 0.8rem;
 }
 
@@ -454,7 +467,7 @@ header::after {
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   padding: 8px;
-  box-shadow: 0 24px 50px -20px #000000d0;
+  box-shadow: 0 24px 50px -20px #000000e0;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -485,12 +498,12 @@ header::after {
 }
 
 .account-dropdown button i {
-  color: var(--cyber-2);
+  color: var(--gold);
   width: 16px;
 }
 
 .account-dropdown .account-sair {
-  color: var(--coral);
+  color: var(--wine);
   border-top: 1px solid var(--divisoria);
   margin-top: 4px;
   padding-top: 12px;
@@ -498,12 +511,12 @@ header::after {
 }
 
 .account-dropdown .account-sair:hover {
-  background: #ff4d4d16;
-  color: var(--coral);
+  background: #b3413f16;
+  color: var(--wine);
 }
 
 .account-dropdown .account-sair i {
-  color: var(--coral);
+  color: var(--wine);
 }
 
 /* ============================================================
@@ -518,7 +531,7 @@ button {
   font-weight: 600;
   font-size: 0.88rem;
   letter-spacing: 0.01em;
-  color: white;
+  color: #1a1305;
   transition: var(--transition);
   display: inline-flex;
   align-items: center;
@@ -529,7 +542,7 @@ button {
 
 button:hover {
   transform: translateY(-1px);
-  filter: brightness(1.1);
+  filter: brightness(1.08);
 }
 
 button:active {
@@ -537,24 +550,24 @@ button:active {
 }
 
 .btn-verde {
-  background: linear-gradient(135deg, var(--ok) 0%, var(--ok-dark) 100%);
-  box-shadow: 0 4px 16px -4px var(--emerald-glow);
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+  box-shadow: 0 4px 16px -4px var(--gold-glow);
 }
 
 .btn-amarelo {
-  background: linear-gradient(135deg, var(--warn) 0%, var(--warn-dark) 100%);
-  color: #241d00;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
   box-shadow: 0 4px 16px -4px var(--gold-glow);
 }
 
 .btn-primario {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
-  box-shadow: 0 4px 16px -4px var(--cyber-glow);
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-dark) 100%);
+  box-shadow: 0 4px 16px -4px var(--gold-glow);
 }
 
 .btn-perigo {
   background: linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%);
-  box-shadow: 0 4px 16px -4px var(--coral-glow);
+  color: #fdeceb;
+  box-shadow: 0 4px 16px -4px var(--wine-glow);
 }
 
 .btn-admin {
@@ -573,8 +586,8 @@ button:active {
 }
 
 .btn-admin:hover {
-  color: var(--text-primary);
-  border-color: var(--cyber);
+  color: var(--gold);
+  border-color: var(--gold);
 }
 
 .btn-whatsapp {
@@ -609,13 +622,13 @@ button:active {
   left: -60%;
   width: 40%;
   height: 100%;
-  background: linear-gradient(120deg, transparent, #ffffff55, transparent);
+  background: linear-gradient(120deg, transparent, #ffffff70, transparent);
   transform: skewX(-20deg);
   transition: left 0.55s var(--ease);
 }
 
 .btn-entrar-sala:hover {
-  box-shadow: 0 0 28px var(--cyber-glow), 0 10px 24px -10px #000000b0;
+  box-shadow: 0 0 28px var(--gold-glow), 0 10px 24px -10px #000000c0;
   transform: translateY(-2px) scale(1.015);
 }
 
@@ -624,7 +637,7 @@ button:active {
 }
 
 .btn-entrar-sala:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: not-allowed;
   filter: none;
   transform: none;
@@ -664,19 +677,18 @@ button:active {
 .lote-partidas,
 .chat-container,
 .indicacao-container {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  background: linear-gradient(180deg, var(--surface) 0%, var(--bg-elevated) 100%);
   padding: 1.85rem 2rem;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border);
 }
 
 .banner-desafio {
   text-align: center;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 0 0 1px var(--cyber-glow), 0 30px 60px -30px #000000b0;
+  border-color: var(--border-strong);
+  box-shadow: 0 30px 60px -30px #000000c0;
 }
 
 .banner-desafio::before {
@@ -685,8 +697,8 @@ button:active {
   inset: -1px;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(120deg, var(--cyber) 0%, transparent 35%, transparent 65%, var(--emerald) 100%);
-  opacity: 0.35;
+  background: linear-gradient(120deg, var(--gold) 0%, transparent 40%, transparent 60%, var(--gold-light) 100%);
+  opacity: 0.4;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -695,25 +707,25 @@ button:active {
 
 .banner-desafio h2 {
   font-family: var(--font-display);
-  color: var(--cyber-2);
-  margin-bottom: 10px;
-  font-size: 1.35rem;
+  color: var(--gold-light);
+  margin-bottom: 12px;
+  font-size: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  text-shadow: 0 0 20px var(--cyber-glow);
+  text-shadow: 0 0 24px var(--gold-glow);
 }
 
 .banner-desafio p {
   max-width: 480px;
   margin: 0 auto;
   font-size: 0.95rem;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 .banner-desafio strong {
-  color: var(--emerald);
+  color: var(--gold);
 }
 
 .lote-partidas h3,
@@ -723,7 +735,8 @@ button:active {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  font-size: 1.05rem;
+  font-family: var(--font-display);
+  font-size: 1.12rem;
   font-weight: 700;
   letter-spacing: 0.01em;
   color: var(--text-primary);
@@ -735,7 +748,7 @@ button:active {
 .lote-partidas h3 i,
 .chat-container h3 i,
 .indicacao-container h3 i {
-  color: var(--cyber-2);
+  color: var(--gold);
   font-size: 0.95rem;
 }
 
@@ -754,40 +767,45 @@ button:active {
 }
 
 .badge-open {
-  background: #00e67620;
-  color: var(--emerald);
-  border: 1px solid #00e67645;
+  background: #d4af3722;
+  color: var(--gold-light);
+  border: 1px solid #d4af3745;
 }
 
 .badge-open i {
   font-size: 0.5rem;
   animation: pulse-dot 1.8s ease-in-out infinite;
-  color: var(--emerald);
+  color: var(--gold);
+}
+
+@keyframes pulse-badge-shield {
+  0%, 100% { box-shadow: 0 0 14px -4px var(--gold-glow); }
+  50%      { box-shadow: 0 0 20px -2px var(--gold-glow); }
 }
 
 .badge-shield {
-  background: #00e67618;
-  color: var(--emerald);
-  border: 1px solid #00e67640;
+  background: #d4af3718;
+  color: var(--gold-light);
+  border: 1px solid #d4af3740;
   font-size: 0.68rem;
-  box-shadow: 0 0 14px -4px var(--emerald-glow);
+  animation: pulse-badge-shield 2.2s ease-in-out infinite;
 }
 
 .badge-money {
-  background: #00e67620;
-  color: var(--emerald);
-  border: 1px solid #00e67645;
+  background: #d4af3722;
+  color: var(--gold-light);
+  border: 1px solid #d4af3745;
 }
 
 .badge-completa {
-  background: #00f2fe20;
-  color: var(--cyber-2);
-  border-color: #00f2fe45;
+  background: #d4af3735;
+  color: var(--gold-light);
+  border-color: var(--gold);
 }
 
 .badge-completa i {
   animation: none;
-  color: var(--cyber-2);
+  color: var(--gold-light);
 }
 
 /* --- Sala de duelo --- */
@@ -805,8 +823,18 @@ button:active {
 }
 
 .card-sala:hover {
-  border-color: var(--cyber);
-  box-shadow: 0 0 0 1px var(--cyber-glow), 0 20px 40px -24px #000000b0;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold-glow), 0 20px 40px -24px #000000c0;
+}
+
+@keyframes partida-andamento-brilho {
+  0%, 100% { border-color: var(--gold-dark); }
+  50%      { border-color: var(--gold); }
+}
+
+.card-sala.partida-andamento {
+  animation: partida-andamento-brilho 1.8s ease-in-out infinite;
+  box-shadow: 0 0 24px -6px var(--gold-glow);
 }
 
 .card-sala-topo {
@@ -818,7 +846,8 @@ button:active {
 }
 
 .card-sala-info h4 {
-  font-size: 1.08rem;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
   font-weight: 700;
 }
 
@@ -832,7 +861,7 @@ button:active {
 }
 
 .card-sala-valores i {
-  color: var(--emerald);
+  color: var(--gold);
   margin-right: 4px;
 }
 
@@ -861,8 +890,8 @@ button:active {
 .progresso-sala-preenchido {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--cyber) 0%, var(--cyber-2) 100%);
-  box-shadow: 0 0 14px var(--cyber-glow);
+  background: linear-gradient(90deg, var(--gold-dark) 0%, var(--gold) 50%, var(--gold-light) 100%);
+  box-shadow: 0 0 14px var(--gold-glow);
   transition: width 0.5s var(--ease);
   animation: progresso-sala-brilho 2.4s ease-in-out infinite;
 }
@@ -906,14 +935,16 @@ button:active {
 }
 
 .msg-sistema {
-  color: var(--emerald);
+  color: var(--gold-light);
   display: flex;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   gap: 8px;
   font-size: 0.83rem;
   font-weight: 500;
-  background: #00e67612;
-  border: 1px solid #00e67635;
+  background: #d4af3712;
+  border: 1px solid #d4af3735;
   border-radius: var(--radius-sm);
   padding: 10px 12px;
 }
@@ -924,10 +955,11 @@ button:active {
   max-width: 85%;
   font-size: 0.9rem;
   line-height: 1.4;
+  color: var(--text-primary);
 }
 
 .msg-proprio {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(135deg, var(--gold-dark) 0%, #6b5420 100%);
   margin-left: auto;
 }
 
@@ -938,7 +970,7 @@ button:active {
 
 .msg-hora {
   font-size: 0.7rem;
-  color: #ffffffa0;
+  color: #f3ead1a0;
   margin-left: 8px;
 }
 
@@ -964,7 +996,7 @@ button:active {
 .chat-input-area input:focus,
 .indicacao-input-row input:focus,
 .admin-box input:focus {
-  border-color: var(--cyber);
+  border-color: var(--gold);
 }
 
 .chat-input-area button {
@@ -1022,20 +1054,20 @@ button:active {
   width: 480px;
   height: 480px;
   border-radius: 50%;
-  filter: blur(90px);
+  filter: blur(100px);
   animation: auth-orbs-flutuar 9s ease-in-out infinite;
 }
 
 .auth-orbs::before {
   top: -180px;
   left: -160px;
-  background: radial-gradient(circle, #00f2fe22 0%, transparent 70%);
+  background: radial-gradient(circle, #d4af3722 0%, transparent 70%);
 }
 
 .auth-orbs::after {
   bottom: -200px;
   right: -160px;
-  background: radial-gradient(circle, #00e67618 0%, transparent 70%);
+  background: radial-gradient(circle, #d4af3714 0%, transparent 70%);
   animation-delay: -4.5s;
 }
 
@@ -1049,7 +1081,7 @@ button:active {
   border-radius: var(--radius-lg);
   padding: 2.75rem 2.4rem 2.5rem;
   text-align: center;
-  box-shadow: 0 40px 80px -30px #000000d0;
+  box-shadow: 0 40px 90px -30px #000000e0;
   animation: fade-slide-up 0.5s var(--ease) both;
   position: relative;
   z-index: 1;
@@ -1061,7 +1093,7 @@ button:active {
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--cyber) 0%, var(--cyber-2) 45%, var(--emerald) 100%);
+  background: linear-gradient(90deg, var(--gold-dark) 0%, var(--gold-light) 50%, var(--gold-dark) 100%);
 }
 
 .auth-logo {
@@ -1073,17 +1105,17 @@ button:active {
 }
 
 .auth-logo .logo-icon {
-  width: 56px;
-  height: 56px;
+  width: 58px;
+  height: 58px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   font-size: 1.5rem;
-  color: var(--cyber-2);
-  background: radial-gradient(circle, #00f2fe1a 0%, transparent 70%);
-  border: 1px solid #00f2fe30;
-  box-shadow: 0 0 24px -4px var(--cyber-glow);
+  color: var(--gold);
+  background: radial-gradient(circle, #d4af371a 0%, transparent 70%);
+  border: 1px solid #d4af3740;
+  box-shadow: 0 0 24px -4px var(--gold-glow);
 }
 
 .auth-subtitulo {
@@ -1095,9 +1127,9 @@ button:active {
 
 .auth-container h2 {
   font-family: var(--font-display);
-  font-size: 1.35rem;
+  font-size: 1.5rem;
   letter-spacing: 0.01em;
-  background: linear-gradient(135deg, #ffffff 0%, var(--cyber-2) 100%);
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -1137,34 +1169,34 @@ button:active {
 
 .input-icon-group input:focus {
   outline: none;
-  border-color: var(--cyber);
-  box-shadow: 0 0 0 3px var(--cyber-glow);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-glow);
 }
 
 .input-icon-group input:focus ~ i,
 .input-icon-group input:not(:placeholder-shown) ~ i {
-  color: var(--cyber-2);
+  color: var(--gold);
 }
 
 .input-icon-group.invalido input {
-  border-color: var(--coral);
+  border-color: var(--wine);
 }
 
 .input-icon-group.invalido i {
-  color: var(--coral);
+  color: var(--wine);
 }
 
 .input-icon-group.valido input {
-  border-color: var(--ok);
+  border-color: var(--gold);
 }
 
 .input-icon-group.valido i {
-  color: var(--ok);
+  color: var(--gold);
 }
 
 .campo-erro {
   text-align: left;
-  color: var(--coral);
+  color: var(--wine);
   font-size: 0.78rem;
   margin-top: -6px;
   display: flex;
@@ -1191,7 +1223,7 @@ button:active {
 }
 
 .auth-links a {
-  color: var(--cyber-2);
+  color: var(--gold);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -1200,7 +1232,7 @@ button:active {
 }
 
 .auth-links a:hover {
-  color: var(--cyber);
+  color: var(--gold-light);
   text-decoration: underline;
 }
 
@@ -1222,7 +1254,7 @@ button:active {
   display: none;
   position: fixed;
   inset: 0;
-  background: #030509d9;
+  background: #020100d9;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   justify-content: center;
@@ -1251,7 +1283,7 @@ button:active {
   text-align: center;
   position: relative;
   border: 1px solid var(--glass-border);
-  box-shadow: 0 0 0 1px var(--cyber-glow), 0 30px 60px -25px #000000c0;
+  box-shadow: 0 0 0 1px var(--gold-glow), 0 30px 70px -25px #000000e0;
   animation: modal-pop 0.3s var(--ease) both;
 }
 
@@ -1270,13 +1302,13 @@ button:active {
 
 .modal-header h2 {
   font-family: var(--font-display);
-  font-size: 1.12rem;
+  font-size: 1.2rem;
   color: var(--text-primary);
   flex: 1;
 }
 
 .modal-header-icon {
-  color: var(--cyber-2);
+  color: var(--gold);
   font-size: 1.25rem;
 }
 
@@ -1297,7 +1329,7 @@ button:active {
 }
 
 .modal-conteudo input:focus {
-  border-color: var(--cyber);
+  border-color: var(--gold);
 }
 
 .modal-conteudo button {
@@ -1324,13 +1356,13 @@ button:active {
 }
 
 .modal-conteudo .aviso-domingo {
-  color: var(--gold);
+  color: var(--gold-light);
   font-size: 0.85rem;
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #ffd70014;
-  border: 1px solid #ffd70035;
+  background: #d4af3714;
+  border: 1px solid #d4af3735;
   border-radius: var(--radius-sm);
   padding: 10px 12px;
 }
@@ -1360,7 +1392,7 @@ button:active {
   padding: 14px;
   background: #ffffff;
   border-radius: var(--radius-md);
-  box-shadow: 0 0 0 1px var(--cyber-glow), 0 22px 44px -22px #000000c0;
+  box-shadow: 0 0 0 1px var(--gold-glow), 0 22px 50px -22px #000000e0;
 }
 
 .pix-qrcode-quadro {
@@ -1397,18 +1429,18 @@ button:active {
 }
 
 .pix-valor-linha strong {
-  color: var(--emerald);
+  color: var(--gold);
   font-family: var(--font-display);
 }
 
 /* --- Alterar senha: validação visual de correspondência --- */
 
 .input-icon-group.senha-confere input {
-  border-color: var(--ok);
+  border-color: var(--gold);
 }
 
 .input-icon-group.senha-nao-confere input {
-  border-color: var(--coral);
+  border-color: var(--wine);
 }
 
 /* ============================================================
@@ -1437,7 +1469,7 @@ button:active {
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
-  box-shadow: 0 20px 44px -16px #000000c0;
+  box-shadow: 0 20px 48px -16px #000000e0;
   color: var(--text-primary);
   font-size: 0.88rem;
   line-height: 1.4;
@@ -1481,7 +1513,7 @@ button:active {
   right: 0;
   bottom: 0;
   height: 3px;
-  background: #ffffff0f;
+  background: #d4af3714;
 }
 
 .toast-progresso-barra {
@@ -1492,21 +1524,32 @@ button:active {
   animation-fill-mode: forwards;
 }
 
-.toast-sucesso { border-color: #00e6763d; }
-.toast-sucesso .toast-icon { color: var(--emerald); filter: drop-shadow(0 0 6px var(--emerald-glow)); }
-.toast-sucesso .toast-progresso-barra { background: var(--emerald); }
+.toast-sucesso { border-color: #d4af373d; }
+.toast-sucesso .toast-icon { color: var(--gold); filter: drop-shadow(0 0 6px var(--gold-glow)); }
+.toast-sucesso .toast-progresso-barra { background: var(--gold); }
 
-.toast-erro { border-color: #ff4d4d3d; }
-.toast-erro .toast-icon { color: var(--coral); }
-.toast-erro .toast-progresso-barra { background: var(--coral); }
+.toast-erro { border-color: #b3413f3d; }
+.toast-erro .toast-icon { color: var(--wine); }
+.toast-erro .toast-progresso-barra { background: var(--wine); }
 
-.toast-aviso { border-color: #ffd7003d; }
-.toast-aviso .toast-icon { color: var(--gold); }
-.toast-aviso .toast-progresso-barra { background: var(--gold); }
+.toast-aviso { border-color: #d4af373d; }
+.toast-aviso .toast-icon { color: var(--gold-light); }
+.toast-aviso .toast-progresso-barra { background: var(--gold-light); }
 
-.toast-info { border-color: #00f2fe3d; }
-.toast-info .toast-icon { color: var(--cyber-2); }
-.toast-info .toast-progresso-barra { background: var(--cyber-2); }
+.toast-info { border-color: #d4af373d; }
+.toast-info .toast-icon { color: var(--text-secondary); }
+.toast-info .toast-progresso-barra { background: var(--text-secondary); }
+
+.toast-vitoria {
+  border-color: var(--gold);
+  box-shadow: 0 0 40px -10px var(--gold-glow), 0 20px 48px -16px #000000e0;
+}
+.toast-vitoria .toast-icon { color: var(--gold); filter: drop-shadow(0 0 8px var(--gold-glow)); }
+.toast-vitoria .toast-progresso-barra { background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); }
+
+.toast-derrota { border-color: #b3413f3d; }
+.toast-derrota .toast-icon { color: var(--wine); }
+.toast-derrota .toast-progresso-barra { background: var(--wine); }
 
 @media (max-width: 480px) {
   .toast-container {
