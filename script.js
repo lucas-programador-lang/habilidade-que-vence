@@ -2,34 +2,63 @@
 
 /* ================================================================
    HABILIDADE QUE VENCE — script.js
-   Estrutura do arquivo:
-     1. Estado
-     2. Sistema de notificações (toast) e confirmação customizada
-     3. Modais (abrir/fechar com animação sincronizada ao CSS)
+     1. Estado + persistência (localStorage)
+     2. Toasts e confirmação customizada
+     3. Modais
      4. Interface (saldo)
-     5. Depósito (fluxo em duas etapas)
-     6. Saque (nome, chave PIX, valor)
-     7. Sala de jogo (contador e barra de progresso reais)
-     8. Chat
+     5. Depósito (duas etapas)
+     6. Saque
+     7. Salas (arquitetura pronta para backend real — sem robôs)
+     8. Chat (XSS-safe)
      9. Indicação
-     10. Conta (menu dropdown, perfil, alterar senha, sair)
-     11. Painel Admin
+     10. Conta (perfil, senha, sair)
+     11. Admin
      12. Inicialização
    ================================================================ */
 
 // ----------------------------------------------------------------
-// 1. Estado
+// 1. Estado + persistência
 // ----------------------------------------------------------------
 
+const CHAVE_SALDO = 'saldoAtual';
+const CHAVE_SALAS_INSCRITAS = 'salasInscritas';
+
+const SALAS_CONFIG = {
+  1: { valor: 0.50, premio: 2.00 },
+  2: { valor: 1.00, premio: 4.00 },
+  3: { valor: 2.00, premio: 8.00 },
+};
+
+const carregarSaldoInicial = () => {
+  const salvo = parseFloat(localStorage.getItem(CHAVE_SALDO));
+  return Number.isNaN(salvo) ? 10.50 : salvo;
+};
+
+const carregarSalasInscritas = () => {
+  try {
+    const salvo = JSON.parse(localStorage.getItem(CHAVE_SALAS_INSCRITAS));
+    return Array.isArray(salvo) ? salvo : [];
+  } catch {
+    return [];
+  }
+};
+
 const estado = {
-  saldoAtual: 10.50,
+  saldoAtual: carregarSaldoInicial(),
   depositoPendente: null,
-  sala: {
-    participantesAtuais: 0,
-    capacidadeMaxima: 4,
-    cheia: false,
-    jogadorInscrito: false,
-  },
+  salas: Object.fromEntries(
+    Object.keys(SALAS_CONFIG).map((id) => [
+      id,
+      { inscrito: carregarSalasInscritas().includes(id) },
+    ])
+  ),
+};
+
+/** Salva saldo e inscrições no localStorage — chamado após qualquer mudança. */
+const persistirEstado = () => {
+  localStorage.setItem(CHAVE_SALDO, estado.saldoAtual.toFixed(2));
+  const inscritas = Object.keys(estado.salas).filter((id) => estado.salas[id].inscrito);
+  localStorage.setItem(CHAVE_SALAS_INSCRITAS, JSON.stringify(inscritas));
 };
 
 const REGRAS = {
@@ -41,7 +70,7 @@ const REGRAS = {
 };
 
 // ----------------------------------------------------------------
-// 2. Sistema de notificações (toast) e confirmação customizada
+// 2. Toasts e confirmação customizada
 // ----------------------------------------------------------------
 
 const TOAST_DURACAO_MS = 4500;
@@ -160,13 +189,12 @@ const confirmarAcao = (mensagem, titulo = 'Confirmar ação') => {
 };
 
 // ----------------------------------------------------------------
-// 3. Modais (abrir/fechar com animação sincronizada ao CSS)
+// 3. Modais
 // ----------------------------------------------------------------
 
 const abrirModal = (id) => {
   const modal = document.getElementById(id);
   if (!modal) return;
-
   modal.classList.remove('fechando');
   modal.style.display = 'flex';
 };
@@ -174,26 +202,23 @@ const abrirModal = (id) => {
 const fecharModal = (id) => {
   const modal = document.getElementById(id);
   if (!modal) return;
-
   modal.classList.add('fechando');
-
   const finalizarFechamento = () => {
     modal.style.display = 'none';
     modal.classList.remove('fechando');
   };
-
   modal.addEventListener('animationend', finalizarFechamento, { once: true });
   setTimeout(finalizarFechamento, 250);
 };
 
 // ----------------------------------------------------------------
-// 4. Interface (saldo)
+// 4. Interface (saldo) — toda mudança de saldo persiste na hora
 // ----------------------------------------------------------------
 
 const atualizarInterface = () => {
+  persistirEstado();
   const elementoSaldo = document.getElementById('user-saldo');
   if (!elementoSaldo) return;
-
   const saldoFormatado = estado.saldoAtual.toFixed(2).replace('.', ',');
   elementoSaldo.innerHTML = `<i class="fa-solid fa-sack-dollar"></i> Saldo: R$ ${saldoFormatado}`;
 };
@@ -229,11 +254,8 @@ const gerarPixDeposito = () => {
   }
 
   estado.depositoPendente = valor;
-
-  document.getElementById('deposito-valor-exibido').textContent =
-    `R$ ${valor.toFixed(2).replace('.', ',')}`;
+  document.getElementById('deposito-valor-exibido').textContent = `R$ ${valor.toFixed(2).replace('.', ',')}`;
   document.getElementById('pix-copia-cola').value = gerarChavePixFicticia(valor);
-
   mostrarEtapaDeposito('qr');
 };
 
@@ -249,19 +271,16 @@ const confirmarPagamentoPix = () => {
     mostrarToast('Nenhum depósito pendente para confirmar.', 'erro');
     return;
   }
-
   estado.saldoAtual += estado.depositoPendente;
   atualizarInterface();
-
   const valorCreditado = estado.depositoPendente;
   estado.depositoPendente = null;
-
   fecharModal('modal-depositar');
   mostrarToast(`Pagamento confirmado! R$ ${valorCreditado.toFixed(2)} creditado na sua conta.`, 'sucesso');
 };
 
 // ----------------------------------------------------------------
-// 6. Saque — nome completo, chave PIX e valor
+// 6. Saque
 // ----------------------------------------------------------------
 
 const realizarSaque = () => {
@@ -304,130 +323,31 @@ const realizarSaque = () => {
 };
 
 // ----------------------------------------------------------------
-// 7. Sala de jogo + Jogo de cartas (estilo UNO simplificado)
-//    - Contador começa em 0/4 de verdade — antes tinha um
-//      participante "fantasma" pré-preenchido, o que estava errado.
-//    - Clique duplo bloqueado: uma vez inscrito, o botão desabilita
-//      e mostra "Aguardando Oponentes...".
-//    - Oponentes fictícios entram sozinhos em intervalos aleatórios
-//      até 4/4.
-//    - Ao completar, começa uma partida de cartas de verdade:
-//      combine cor ou número da carta do topo do descarte, ou
-//      compre uma carta se não tiver jogada. Quem esvaziar a mão
-//      primeiro vence. Sem cartas especiais (pular/+2/coringa) —
-//      versão simplificada de propósito, pra manter o jogo correto
-//      e testável.
+// 7. Salas — arquitetura pronta para backend real, sem robôs
+//    entrarNaSala() só desconta, persiste e trava o botão. Não há
+//    mais nenhum timer simulando oponentes: sem servidor real
+//    (WebSocket/API), a sala fica "Inscrito com Sucesso" e não tem
+//    como avançar sozinha — isso é intencional e honesto, não bug.
 // ----------------------------------------------------------------
 
-const OPONENTES_FICTICIOS = ['jogador2', 'jogador3', 'jogador4'];
-const NOMES_EXIBICAO_JOGADORES = {
-  voce: 'Você',
-  jogador2: 'Jogador_2',
-  jogador3: 'Jogador_3',
-  jogador4: 'Jogador_4',
-};
-const ORDEM_TURNOS = ['voce', 'jogador2', 'jogador3', 'jogador4'];
-const CORES_CARTAS = ['vermelho', 'verde', 'azul', 'amarelo'];
-const PREMIO_SALA = 2.00;
+const atualizarInterfaceSala = (salaId) => {
+  const botao = document.getElementById(`btn-entrar-${salaId}`);
+  const contador = document.getElementById(`contador-${salaId}`);
+  if (!botao) return;
 
-const estadoJogo = {
-  ativo: false,
-  baralho: [],
-  descarte: [],
-  maos: {},
-  turno: 0,
-  vencedor: null,
-};
-
-const atualizarInterfaceSala = () => {
-  const contador = document.getElementById('contador-players');
-  const barra = document.querySelector('.progresso-sala-preenchido');
-  const botao = document.querySelector('.btn-entrar-sala');
-  const badgeVagas = document.querySelector('.progresso-sala .badge-open');
-  const card = document.querySelector('.card-sala');
-
-  if (contador) contador.textContent = estado.sala.participantesAtuais;
-
-  if (barra) {
-    const percentual = (estado.sala.participantesAtuais / estado.sala.capacidadeMaxima) * 100;
-    barra.style.width = `${percentual}%`;
-  }
-
-  if (estado.sala.cheia) {
-    card?.classList.add('partida-andamento');
-    if (botao) {
-      botao.disabled = true;
-      botao.innerHTML = '<i class="fa-solid fa-bolt"></i> Partida em andamento...';
-    }
-    badgeVagas?.classList.add('badge-completa');
-  } else if (estado.sala.jogadorInscrito) {
-    if (botao) {
-      botao.disabled = true;
-      botao.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Aguardando oponentes...';
-    }
+  if (estado.salas[salaId].inscrito) {
+    botao.disabled = true;
+    botao.innerHTML = '<i class="fa-solid fa-circle-check"></i> Inscrito com Sucesso';
+    if (contador) contador.textContent = '1';
   }
 };
 
-/** Zera a sala de volta ao estado inicial (0/4), pronta para uma nova rodada. */
-const resetarSala = () => {
-  estado.sala = {
-    participantesAtuais: 0,
-    capacidadeMaxima: 4,
-    cheia: false,
-    jogadorInscrito: false,
-  };
+const entrarNaSala = (salaId, valor) => {
+  const sala = estado.salas[salaId];
+  if (!sala) return;
 
-  const botao = document.querySelector('.btn-entrar-sala');
-  const card = document.querySelector('.card-sala');
-  const badgeVagas = document.querySelector('.progresso-sala .badge-open');
-
-  card?.classList.remove('partida-andamento');
-  badgeVagas?.classList.remove('badge-completa');
-  if (botao) {
-    botao.disabled = false;
-    botao.innerHTML = '<i class="fa-solid fa-play"></i> Entrar na Partida (R$ 0,50)';
-  }
-
-  atualizarInterfaceSala();
-};
-
-/** Faz os oponentes fictícios entrarem um a um, em intervalos aleatórios. */
-const iniciarSimulacaoOponentes = () => {
-  const entrarProximoOponente = () => {
-    if (estado.sala.participantesAtuais >= estado.sala.capacidadeMaxima) return;
-
-    estado.sala.participantesAtuais += 1;
-
-    if (estado.sala.participantesAtuais >= estado.sala.capacidadeMaxima) {
-      estado.sala.cheia = true;
-      atualizarInterfaceSala();
-      iniciarPartida();
-      return;
-    }
-
-    atualizarInterfaceSala();
-    const atraso = 1500 + Math.random() * 2500;
-    setTimeout(entrarProximoOponente, atraso);
-  };
-
-  const atrasoInicial = 1200 + Math.random() * 2000;
-  setTimeout(entrarProximoOponente, atrasoInicial);
-};
-
-const iniciarPartida = () => {
-  mostrarToast('Sala completa! A partida de cartas está começando.', 'sucesso');
-  adicionarMensagemChat('Sistema', 'Partida iniciada — boa sorte a todos!', 'msg-outro');
-  iniciarJogoCartas();
-};
-
-const entrarNaSala = (valor) => {
-  if (estado.sala.jogadorInscrito) {
-    mostrarToast('Você já está inscrito nessa sala. Aguarde os outros participantes.', 'aviso');
-    return;
-  }
-
-  if (estado.sala.cheia) {
-    mostrarToast('Essa sala já está completa. Aguarde a próxima.', 'aviso');
+  if (sala.inscrito) {
+    mostrarToast('Você já está inscrito nessa sala.', 'aviso');
     return;
   }
 
@@ -438,254 +358,59 @@ const entrarNaSala = (valor) => {
   }
 
   estado.saldoAtual -= valor;
-  estado.sala.jogadorInscrito = true;
-  estado.sala.participantesAtuais += 1;
-
-  if (estado.sala.participantesAtuais >= estado.sala.capacidadeMaxima) {
-    estado.sala.cheia = true;
-    atualizarInterface();
-    atualizarInterfaceSala();
-    iniciarPartida();
-    return;
-  }
+  sala.inscrito = true;
 
   atualizarInterface();
-  atualizarInterfaceSala();
-  mostrarToast(`Investimento de R$ ${valor.toFixed(2)} confirmado! Aguardando os outros participantes.`, 'sucesso');
-  iniciarSimulacaoOponentes();
+  atualizarInterfaceSala(salaId);
+  mostrarToast(`Inscrição confirmada! R$ ${valor.toFixed(2)} descontado. Aguardando outros jogadores reais entrarem.`, 'sucesso');
+
+  // 🔌 PONTO DE INTEGRAÇÃO COM BACKEND REAL (WebSocket / API)
+  // Aqui é onde uma conexão de verdade entraria para matchmaking
+  // e resultado da partida. Exemplo de estrutura esperada:
+  //
+  //   const socket = io('wss://seu-servidor.com');
+  //   socket.emit('entrarFila', { salaId, usuario: localStorage.getItem('usuarioLogado') });
+  //   socket.on('partidaFinalizada', ({ venceu }) => processarResultadoPartida(salaId, venceu));
+  //
+  // Sem esse servidor, a sala fica travada em "Inscrito com Sucesso"
+  // — não existe like um "fake win" pra disfarçar a ausência de
+  // oponentes reais.
 };
 
-// --- Jogo de cartas ---
+/**
+ * Ponto de integração: uma conexão real com backend chamaria esta
+ * função ao final de uma partida de verdade. Não é chamada em
+ * nenhum lugar do código hoje — não há robô simulando o resultado.
+ * @param {string} salaId
+ * @param {boolean} venceu
+ */
+const processarResultadoPartida = (salaId, venceu) => {
+  const sala = estado.salas[salaId];
+  const config = SALAS_CONFIG[salaId];
+  if (!sala || !config) return;
 
-/** Embaralha um array com Fisher-Yates, sem alterar o original. */
-const embaralhar = (lista) => {
-  const copia = [...lista];
-  for (let i = copia.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copia[i], copia[j]] = [copia[j], copia[i]];
-  }
-  return copia;
-};
-
-/** Monta o baralho: por cor, um "0" e dois de cada valor de 1 a 9 (76 cartas). */
-const criarBaralho = () => {
-  const baralho = [];
-  CORES_CARTAS.forEach((cor) => {
-    for (let valor = 0; valor <= 9; valor++) {
-      baralho.push({ cor, valor });
-      if (valor !== 0) baralho.push({ cor, valor });
-    }
-  });
-  return embaralhar(baralho);
-};
-
-const cartaCombina = (carta, topo) => carta.cor === topo.cor || carta.valor === topo.valor;
-const topoDescarte = () => estadoJogo.descarte[estadoJogo.descarte.length - 1];
-const jogadorDaVez = () => ORDEM_TURNOS[estadoJogo.turno];
-const avancarTurno = () => {
-  estadoJogo.turno = (estadoJogo.turno + 1) % ORDEM_TURNOS.length;
-};
-
-/** Compra uma carta do baralho; se acabar, reembaralha o descarte (exceto o topo). */
-const comprarUmaCarta = () => {
-  if (estadoJogo.baralho.length === 0) {
-    const topo = estadoJogo.descarte.pop();
-    estadoJogo.baralho = embaralhar(estadoJogo.descarte);
-    estadoJogo.descarte = [topo];
-  }
-  return estadoJogo.baralho.shift();
-};
-
-const iniciarJogoCartas = () => {
-  estadoJogo.ativo = true;
-  estadoJogo.baralho = criarBaralho();
-  estadoJogo.maos = {};
-  ORDEM_TURNOS.forEach((jogador) => {
-    estadoJogo.maos[jogador] = estadoJogo.baralho.splice(0, 7);
-  });
-  estadoJogo.descarte = [estadoJogo.baralho.shift()];
-  estadoJogo.turno = 0;
-  estadoJogo.vencedor = null;
-
-  document.querySelector('.card-sala')?.setAttribute('hidden', '');
-  const areaJogo = document.getElementById('jogo-uno');
-  if (areaJogo) areaJogo.hidden = false;
-
-  renderizarJogo();
-};
-
-const jogarCartaDaMao = (jogador, indice) => {
-  const carta = estadoJogo.maos[jogador][indice];
-  estadoJogo.maos[jogador].splice(indice, 1);
-  estadoJogo.descarte.push(carta);
-
-  if (estadoJogo.maos[jogador].length === 0) {
-    finalizarJogoCartas(jogador);
-    return;
-  }
-
-  avancarTurno();
-  renderizarJogo();
-
-  if (jogadorDaVez() !== 'voce') {
-    setTimeout(jogarTurnoBot, 900 + Math.random() * 900);
-  }
-};
-
-const jogarCartaUsuario = (indice) => {
-  if (!estadoJogo.ativo || jogadorDaVez() !== 'voce') return;
-
-  const carta = estadoJogo.maos.voce[indice];
-  if (!cartaCombina(carta, topoDescarte())) {
-    mostrarToast('Essa carta não combina em cor nem número com o topo do descarte.', 'erro');
-    return;
-  }
-
-  jogarCartaDaMao('voce', indice);
-};
-
-const comprarCarta = () => {
-  if (!estadoJogo.ativo || jogadorDaVez() !== 'voce') return;
-
-  const temJogavel = estadoJogo.maos.voce.some((carta) => cartaCombina(carta, topoDescarte()));
-  if (temJogavel) {
-    mostrarToast('Você tem uma carta jogável na mão — jogue antes de comprar.', 'aviso');
-    return;
-  }
-
-  estadoJogo.maos.voce.push(comprarUmaCarta());
-  avancarTurno();
-  renderizarJogo();
-
-  if (jogadorDaVez() !== 'voce') {
-    setTimeout(jogarTurnoBot, 900 + Math.random() * 900);
-  }
-};
-
-/** Turno automático de um oponente fictício: joga a primeira carta válida, ou compra. */
-const jogarTurnoBot = () => {
-  if (!estadoJogo.ativo) return;
-
-  const jogador = jogadorDaVez();
-  const mao = estadoJogo.maos[jogador];
-  const indiceJogavel = mao.findIndex((carta) => cartaCombina(carta, topoDescarte()));
-
-  if (indiceJogavel === -1) {
-    mao.push(comprarUmaCarta());
-    avancarTurno();
-    renderizarJogo();
-  } else {
-    const carta = mao[indiceJogavel];
-    mao.splice(indiceJogavel, 1);
-    estadoJogo.descarte.push(carta);
-
-    if (mao.length === 0) {
-      finalizarJogoCartas(jogador);
-      return;
-    }
-
-    avancarTurno();
-    renderizarJogo();
-  }
-
-  if (estadoJogo.ativo && jogadorDaVez() !== 'voce') {
-    setTimeout(jogarTurnoBot, 900 + Math.random() * 900);
-  }
-};
-
-const finalizarJogoCartas = (vencedor) => {
-  estadoJogo.ativo = false;
-  estadoJogo.vencedor = vencedor;
-  renderizarJogo();
-
-  if (vencedor === 'voce') {
-    estado.saldoAtual += PREMIO_SALA;
+  if (venceu) {
+    estado.saldoAtual += config.premio;
     atualizarInterface();
-    mostrarToast(`Você venceu a partida de cartas! Prêmio de R$ ${PREMIO_SALA.toFixed(2)} creditado.`, 'vitoria');
-    adicionarMensagemChat('Sistema', 'Partida encerrada — parabéns ao vencedor!', 'msg-outro');
+    mostrarToast(`Vitória! Você levou o prêmio de R$ ${config.premio.toFixed(2)}.`, 'vitoria');
   } else {
-    mostrarToast(`${NOMES_EXIBICAO_JOGADORES[vencedor]} venceu a partida. Não foi dessa vez.`, 'derrota');
-    adicionarMensagemChat('Sistema', 'Partida encerrada.', 'msg-outro');
+    mostrarToast('Não foi dessa vez. O valor investido não é devolvido.', 'derrota');
   }
 
-  setTimeout(() => {
-    const areaJogo = document.getElementById('jogo-uno');
-    if (areaJogo) areaJogo.hidden = true;
-    document.querySelector('.card-sala')?.removeAttribute('hidden');
-    resetarSala();
-  }, 2600);
-};
-
-/** Cria o elemento visual de uma carta. Interativa = pode receber clique (mão do usuário). */
-const criarElementoCarta = (carta, interativa, jogavel) => {
-  const elemento = document.createElement('button');
-  elemento.type = 'button';
-  elemento.className = `carta-uno carta-${carta.cor}`;
-  elemento.textContent = String(carta.valor);
-  elemento.disabled = !interativa || !jogavel;
-  if (!interativa) elemento.tabIndex = -1;
-  return elemento;
-};
-
-const renderizarJogo = () => {
-  const areaOponentes = document.getElementById('jogo-uno-oponentes');
-  const areaDescarte = document.getElementById('jogo-uno-descarte');
-  const areaMao = document.getElementById('jogo-uno-mao');
-  const info = document.getElementById('jogo-uno-info');
-  const btnComprar = document.getElementById('btn-comprar-carta');
-  if (!areaOponentes || !areaDescarte || !areaMao || !info) return;
-
-  areaOponentes.innerHTML = '';
-  OPONENTES_FICTICIOS.forEach((jogador) => {
-    const bloco = document.createElement('div');
-    bloco.className = 'jogo-uno-oponente';
-    bloco.classList.toggle('jogo-uno-oponente-vez', estadoJogo.ativo && jogadorDaVez() === jogador);
-
-    const nome = document.createElement('span');
-    nome.className = 'jogo-uno-oponente-nome';
-    nome.textContent = NOMES_EXIBICAO_JOGADORES[jogador];
-
-    const cartas = document.createElement('span');
-    cartas.className = 'jogo-uno-oponente-cartas';
-    cartas.innerHTML = `<i class="fa-solid fa-clone"></i> ${estadoJogo.maos[jogador]?.length ?? 0}`;
-
-    bloco.append(nome, cartas);
-    areaOponentes.appendChild(bloco);
-  });
-
-  areaDescarte.innerHTML = '';
-  if (estadoJogo.descarte.length > 0) {
-    areaDescarte.appendChild(criarElementoCarta(topoDescarte(), false, false));
+  sala.inscrito = false;
+  persistirEstado();
+  const botao = document.getElementById(`btn-entrar-${salaId}`);
+  const contador = document.getElementById(`contador-${salaId}`);
+  if (botao) {
+    botao.disabled = false;
+    botao.innerHTML = `<i class="fa-solid fa-play"></i> Entrar na Partida (R$ ${config.valor.toFixed(2).replace('.', ',')})`;
   }
-
-  areaMao.innerHTML = '';
-  estadoJogo.maos.voce?.forEach((carta, indice) => {
-    const podeJogar = estadoJogo.ativo && jogadorDaVez() === 'voce' && cartaCombina(carta, topoDescarte());
-    const elementoCarta = criarElementoCarta(carta, estadoJogo.ativo && jogadorDaVez() === 'voce', podeJogar);
-    elementoCarta.addEventListener('click', () => jogarCartaUsuario(indice));
-    areaMao.appendChild(elementoCarta);
-  });
-
-  if (!estadoJogo.ativo && estadoJogo.vencedor) {
-    info.textContent = estadoJogo.vencedor === 'voce'
-      ? 'Você venceu a partida! 🏆'
-      : `${NOMES_EXIBICAO_JOGADORES[estadoJogo.vencedor]} venceu a partida.`;
-  } else if (jogadorDaVez() === 'voce') {
-    info.textContent = 'Sua vez — jogue uma carta que combine em cor ou número.';
-  } else {
-    info.textContent = `Vez de ${NOMES_EXIBICAO_JOGADORES[jogadorDaVez()]}...`;
-  }
-
-  if (btnComprar) {
-    btnComprar.disabled = !estadoJogo.ativo || jogadorDaVez() !== 'voce';
-  }
+  if (contador) contador.textContent = '0';
 };
 
 // ----------------------------------------------------------------
-// 8. Chat
-//    Função única compartilhada por mensagens do usuário e dos
-//    oponentes fictícios — sempre via createElement + textContent,
-//    nunca innerHTML com texto vindo de fora, o que impede XSS.
+// 8. Chat — sempre via createElement + textContent (nunca innerHTML
+//    com texto do usuário), pra impedir XSS.
 // ----------------------------------------------------------------
 
 const adicionarMensagemChat = (autor, texto, classeExtra) => {
@@ -714,7 +439,6 @@ const enviarMensagem = () => {
   const input = document.getElementById('input-chat');
   const texto = input.value.trim();
   if (texto === '') return;
-
   adicionarMensagemChat('Você', texto, 'msg-proprio');
   input.value = '';
 };
@@ -736,11 +460,9 @@ const copiarLink = () => {
 
 const CHAVE_NOME_EXIBICAO = 'nomeExibicao';
 
-/** Mostra o nome de exibição salvo, ou o e-mail como alternativa. */
 const atualizarNomeConta = () => {
   const elemento = document.getElementById('account-nome');
   if (!elemento) return;
-
   const nomeExibicao = localStorage.getItem(CHAVE_NOME_EXIBICAO);
   const email = localStorage.getItem('usuarioLogado');
   elemento.textContent = nomeExibicao || email || 'Minha conta';
@@ -751,18 +473,15 @@ const alternarMenuConta = (evento) => {
   const dropdown = document.getElementById('account-dropdown');
   const toggle = document.querySelector('.account-menu-toggle');
   if (!dropdown || !toggle) return;
-
   const abrindo = dropdown.hidden;
   dropdown.hidden = !abrindo;
   toggle.setAttribute('aria-expanded', String(abrindo));
 };
 
-// Fecha o dropdown ao clicar fora dele
 document.addEventListener('click', (evento) => {
   const dropdown = document.getElementById('account-dropdown');
   const menu = document.querySelector('.account-menu');
   if (!dropdown || dropdown.hidden || !menu) return;
-
   if (!menu.contains(evento.target)) {
     dropdown.hidden = true;
     document.querySelector('.account-menu-toggle')?.setAttribute('aria-expanded', 'false');
@@ -771,37 +490,25 @@ document.addEventListener('click', (evento) => {
 
 const abrirModalPerfil = () => {
   document.getElementById('account-dropdown').hidden = true;
-
   const email = localStorage.getItem('usuarioLogado') || '';
   const nomeExibicao = localStorage.getItem(CHAVE_NOME_EXIBICAO) || '';
-
   document.getElementById('perfil-email').value = email;
   document.getElementById('perfil-nome').value = nomeExibicao;
-
   abrirModal('modal-perfil');
 };
 
 const salvarPerfil = () => {
   const { value: nome } = document.getElementById('perfil-nome');
-
   if (nome.trim().length === 0) {
     localStorage.removeItem(CHAVE_NOME_EXIBICAO);
   } else {
     localStorage.setItem(CHAVE_NOME_EXIBICAO, nome.trim());
   }
-
   atualizarNomeConta();
   fecharModal('modal-perfil');
   mostrarToast('Perfil atualizado com sucesso!', 'sucesso');
 };
 
-/**
- * Sem backend real, não existe uma "senha atual" armazenada em lugar
- * nenhum pra conferir contra o que a pessoa digitar aqui — por isso
- * este fluxo só valida tamanho mínimo e confirmação, e simula o
- * sucesso. Trocar por uma chamada de API é obrigatório antes de ir
- * pra produção de verdade.
- */
 const alterarSenha = () => {
   const { value: senhaAtual } = document.getElementById('senha-atual');
   const { value: senhaNova } = document.getElementById('senha-nova');
@@ -811,12 +518,10 @@ const alterarSenha = () => {
     mostrarToast('Digite sua senha atual.', 'erro');
     return;
   }
-
   if (senhaNova.length < REGRAS.SENHA_MINIMA) {
     mostrarToast(`A nova senha precisa ter pelo menos ${REGRAS.SENHA_MINIMA} caracteres.`, 'erro');
     return;
   }
-
   if (senhaNova !== senhaConfirmar) {
     mostrarToast('A confirmação não bate com a nova senha.', 'erro');
     return;
@@ -825,12 +530,10 @@ const alterarSenha = () => {
   document.getElementById('senha-atual').value = '';
   document.getElementById('senha-nova').value = '';
   document.getElementById('senha-confirmar').value = '';
-
   fecharModal('modal-senha');
   mostrarToast('Senha alterada com sucesso!', 'sucesso');
 };
 
-/** Valida em tempo real se "confirmar nova senha" bate com "nova senha". */
 const configurarValidacaoSenha = () => {
   const nova = document.getElementById('senha-nova');
   const confirmar = document.getElementById('senha-confirmar');
@@ -861,7 +564,7 @@ const sairDaConta = () => {
 };
 
 // ----------------------------------------------------------------
-// 11. Painel Admin
+// 11. Admin
 // ----------------------------------------------------------------
 
 const adminAlterarSaldo = () => {
@@ -877,14 +580,13 @@ const adminExcluirConta = async () => {
     'Tem certeza que deseja excluir esta conta permanentemente? Essa ação não pode ser desfeita.',
     'Excluir conta'
   );
-
   if (confirmado) {
     mostrarToast('Conta excluída com sucesso.', 'sucesso');
   }
 };
 
 // ----------------------------------------------------------------
-// 11.5 Navmenu — indicador de item ativo conforme a rolagem
+// Navmenu — indicador de item ativo conforme a rolagem
 // ----------------------------------------------------------------
 
 const configurarScrollSpyNavmenu = () => {
@@ -917,7 +619,7 @@ const configurarScrollSpyNavmenu = () => {
 // ----------------------------------------------------------------
 
 atualizarInterface();
-atualizarInterfaceSala();
+Object.keys(estado.salas).forEach((id) => atualizarInterfaceSala(id));
 atualizarNomeConta();
 configurarValidacaoSenha();
 configurarScrollSpyNavmenu();
