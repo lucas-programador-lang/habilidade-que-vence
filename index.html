@@ -109,16 +109,29 @@
 
                             <div class="progresso-sala">
                                 <div class="progresso-sala-barra">
-                                    <div class="progresso-sala-preenchido" style="width: 25%;"></div>
+                                    <div class="progresso-sala-preenchido" style="width: 0%;"></div>
                                 </div>
                                 <span class="badge badge-open">
                                     <i class="fa-solid fa-circle"></i>
-                                    <span id="contador-players">1</span>/4 confirmados
+                                    <span id="contador-players">0</span>/4 confirmados
                                 </span>
                             </div>
                         </div>
                         <button onclick="entrarNaSala(0.50)" class="btn-primario btn-entrar-sala">
                             <i class="fa-solid fa-play"></i> Entrar na Partida (R$ 0,50)
+                        </button>
+                    </div>
+
+                    <!-- Jogo de cartas (estilo UNO simplificado): só aparece quando a sala fecha 4/4 -->
+                    <div class="jogo-uno" id="jogo-uno" hidden>
+                        <div class="jogo-uno-oponentes" id="jogo-uno-oponentes"></div>
+                        <div class="jogo-uno-mesa">
+                            <div class="jogo-uno-descarte" id="jogo-uno-descarte"></div>
+                        </div>
+                        <p class="jogo-uno-info" id="jogo-uno-info">Aguardando início...</p>
+                        <div class="jogo-uno-mao" id="jogo-uno-mao"></div>
+                        <button type="button" onclick="comprarCarta()" class="btn-primario" id="btn-comprar-carta">
+                            <i class="fa-solid fa-hand-pointer"></i> Comprar carta
                         </button>
                     </div>
                 </section>
