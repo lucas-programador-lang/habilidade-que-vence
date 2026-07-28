@@ -6,6 +6,11 @@
     <title>Habilidade Que Vence 🐼</title>
     <script>
         // Guarda de acesso: roda antes de qualquer coisa renderizar.
+        // Sem sessão salva -> manda pra tela de login (replace pra não
+        // deixar essa página no histórico do "voltar" do navegador).
+        // Isso é proteção de UX, não segurança: quem editar o
+        // localStorage manualmente ainda entra. Validação real só
+        // existe com um backend checando a sessão de verdade.
         if (!localStorage.getItem('usuarioLogado')) {
             window.location.replace('login.html');
         }
@@ -19,7 +24,7 @@
     <header>
         <div class="logo">
             <i class="fa-solid fa-chess-knight logo-icon"></i>
-            <h1>Habilidade Que Vence 🐼</h1>
+            <h1>Habilidade Que Vence</h1>
         </div>
 
         <!-- Toggle mobile: puramente CSS (checkbox hack), não depende de script.js -->
@@ -154,7 +159,7 @@
         </div>
     </main>
 
-    <!-- Modal Depósito PIX Automático -->
+    <!-- Modal Depósito PIX Automático — duas etapas -->
     <div id="modal-depositar" class="modal">
         <div class="modal-conteudo">
             <div class="modal-header">
@@ -163,6 +168,7 @@
                 <span onclick="fecharModal('modal-depositar')" class="fechar" role="button" aria-label="Fechar">&times;</span>
             </div>
 
+            <!-- Etapa 1: valor -->
             <div class="deposito-etapa" data-etapa="valor">
                 <p>Valor mínimo: R$ 0,50</p>
                 <input type="number" id="valor-deposito" placeholder="0.50" min="0.50" step="0.50" value="0.50">
@@ -171,6 +177,7 @@
                 </button>
             </div>
 
+            <!-- Etapa 2: QR fictício + confirmação (só aparece após gerar o PIX) -->
             <div class="deposito-etapa deposito-etapa-qr" data-etapa="qr" hidden>
                 <div class="pix-qrcode" aria-hidden="true">
                     <div class="pix-qrcode-quadro">
@@ -197,7 +204,7 @@
         </div>
     </div>
 
-    <!-- Modal Saque -->
+    <!-- Modal Saque — Nome, Chave PIX e Valor -->
     <div id="modal-sacar" class="modal">
         <div class="modal-conteudo">
             <div class="modal-header">
