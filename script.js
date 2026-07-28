@@ -25,7 +25,7 @@ const estado = {
   saldoAtual: 10.50,
   depositoPendente: null,
   sala: {
-    participantesAtuais: 1,
+    participantesAtuais: 0,
     capacidadeMaxima: 4,
     cheia: false,
     jogadorInscrito: false,
@@ -304,18 +304,40 @@ const realizarSaque = () => {
 };
 
 // ----------------------------------------------------------------
-// 7. Sala de jogo
+// 7. Sala de jogo + Jogo de cartas (estilo UNO simplificado)
+//    - Contador começa em 0/4 de verdade — antes tinha um
+//      participante "fantasma" pré-preenchido, o que estava errado.
 //    - Clique duplo bloqueado: uma vez inscrito, o botão desabilita
 //      e mostra "Aguardando Oponentes...".
 //    - Oponentes fictícios entram sozinhos em intervalos aleatórios
-//      até 4/4, cada entrada atualiza contador + barra.
-//    - Ao completar, a sala vira "Partida em Andamento": chat recebe
-//      mensagens automáticas e, após 12s, um resultado aleatório
-//      (vitória credita R$ 2,00, derrota não credita nada).
+//      até 4/4.
+//    - Ao completar, começa uma partida de cartas de verdade:
+//      combine cor ou número da carta do topo do descarte, ou
+//      compre uma carta se não tiver jogada. Quem esvaziar a mão
+//      primeiro vence. Sem cartas especiais (pular/+2/coringa) —
+//      versão simplificada de propósito, pra manter o jogo correto
+//      e testável.
 // ----------------------------------------------------------------
 
-const OPONENTES_FICTICIOS = ['Jogador_2', 'Jogador_3', 'Jogador_4'];
+const OPONENTES_FICTICIOS = ['jogador2', 'jogador3', 'jogador4'];
+const NOMES_EXIBICAO_JOGADORES = {
+  voce: 'Você',
+  jogador2: 'Jogador_2',
+  jogador3: 'Jogador_3',
+  jogador4: 'Jogador_4',
+};
+const ORDEM_TURNOS = ['voce', 'jogador2', 'jogador3', 'jogador4'];
+const CORES_CARTAS = ['vermelho', 'verde', 'azul', 'amarelo'];
 const PREMIO_SALA = 2.00;
+
+const estadoJogo = {
+  ativo: false,
+  baralho: [],
+  descarte: [],
+  maos: {},
+  turno: 0,
+  vencedor: null,
+};
 
 const atualizarInterfaceSala = () => {
   const contador = document.getElementById('contador-players');
@@ -346,10 +368,10 @@ const atualizarInterfaceSala = () => {
   }
 };
 
-/** Zera a sala de volta ao estado inicial, pronta para uma nova rodada. */
+/** Zera a sala de volta ao estado inicial (0/4), pronta para uma nova rodada. */
 const resetarSala = () => {
   estado.sala = {
-    participantesAtuais: 1,
+    participantesAtuais: 0,
     capacidadeMaxima: 4,
     cheia: false,
     jogadorInscrito: false,
@@ -392,39 +414,10 @@ const iniciarSimulacaoOponentes = () => {
   setTimeout(entrarProximoOponente, atrasoInicial);
 };
 
-/** Dispara as mensagens automáticas dos oponentes e agenda o fim da partida. */
 const iniciarPartida = () => {
-  mostrarToast('Sala completa! A partida está começando.', 'sucesso');
-
-  const mensagensAutomaticas = [
-    { autor: OPONENTES_FICTICIOS[0], texto: 'Boa sorte a todos! 🍀' },
-    { autor: 'Sistema', texto: 'Analisando jogadas...' },
-    { autor: OPONENTES_FICTICIOS[1], texto: 'Vamos que vamos!' },
-    { autor: OPONENTES_FICTICIOS[2], texto: 'Essa eu levo 😄' },
-  ];
-
-  mensagensAutomaticas.forEach((msg, indice) => {
-    setTimeout(() => adicionarMensagemChat(msg.autor, msg.texto, 'msg-outro'), 900 + indice * 1600);
-  });
-
-  setTimeout(finalizarPartida, 12000);
-};
-
-/** Sorteia vitória ou derrota, credita o prêmio se for o caso, e reseta a sala. */
-const finalizarPartida = () => {
-  const venceu = Math.random() < 0.5;
-
-  if (venceu) {
-    estado.saldoAtual += PREMIO_SALA;
-    atualizarInterface();
-    mostrarToast(`Vitória! Você levou o prêmio de R$ ${PREMIO_SALA.toFixed(2)}.`, 'vitoria');
-    adicionarMensagemChat('Sistema', 'Partida encerrada — parabéns ao vencedor!', 'msg-outro');
-  } else {
-    mostrarToast('Não foi dessa vez. A partida terminou.', 'derrota');
-    adicionarMensagemChat('Sistema', 'Partida encerrada.', 'msg-outro');
-  }
-
-  resetarSala();
+  mostrarToast('Sala completa! A partida de cartas está começando.', 'sucesso');
+  adicionarMensagemChat('Sistema', 'Partida iniciada — boa sorte a todos!', 'msg-outro');
+  iniciarJogoCartas();
 };
 
 const entrarNaSala = (valor) => {
@@ -460,6 +453,232 @@ const entrarNaSala = (valor) => {
   atualizarInterfaceSala();
   mostrarToast(`Investimento de R$ ${valor.toFixed(2)} confirmado! Aguardando os outros participantes.`, 'sucesso');
   iniciarSimulacaoOponentes();
+};
+
+// --- Jogo de cartas ---
+
+/** Embaralha um array com Fisher-Yates, sem alterar o original. */
+const embaralhar = (lista) => {
+  const copia = [...lista];
+  for (let i = copia.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copia[i], copia[j]] = [copia[j], copia[i]];
+  }
+  return copia;
+};
+
+/** Monta o baralho: por cor, um "0" e dois de cada valor de 1 a 9 (76 cartas). */
+const criarBaralho = () => {
+  const baralho = [];
+  CORES_CARTAS.forEach((cor) => {
+    for (let valor = 0; valor <= 9; valor++) {
+      baralho.push({ cor, valor });
+      if (valor !== 0) baralho.push({ cor, valor });
+    }
+  });
+  return embaralhar(baralho);
+};
+
+const cartaCombina = (carta, topo) => carta.cor === topo.cor || carta.valor === topo.valor;
+const topoDescarte = () => estadoJogo.descarte[estadoJogo.descarte.length - 1];
+const jogadorDaVez = () => ORDEM_TURNOS[estadoJogo.turno];
+const avancarTurno = () => {
+  estadoJogo.turno = (estadoJogo.turno + 1) % ORDEM_TURNOS.length;
+};
+
+/** Compra uma carta do baralho; se acabar, reembaralha o descarte (exceto o topo). */
+const comprarUmaCarta = () => {
+  if (estadoJogo.baralho.length === 0) {
+    const topo = estadoJogo.descarte.pop();
+    estadoJogo.baralho = embaralhar(estadoJogo.descarte);
+    estadoJogo.descarte = [topo];
+  }
+  return estadoJogo.baralho.shift();
+};
+
+const iniciarJogoCartas = () => {
+  estadoJogo.ativo = true;
+  estadoJogo.baralho = criarBaralho();
+  estadoJogo.maos = {};
+  ORDEM_TURNOS.forEach((jogador) => {
+    estadoJogo.maos[jogador] = estadoJogo.baralho.splice(0, 7);
+  });
+  estadoJogo.descarte = [estadoJogo.baralho.shift()];
+  estadoJogo.turno = 0;
+  estadoJogo.vencedor = null;
+
+  document.querySelector('.card-sala')?.setAttribute('hidden', '');
+  const areaJogo = document.getElementById('jogo-uno');
+  if (areaJogo) areaJogo.hidden = false;
+
+  renderizarJogo();
+};
+
+const jogarCartaDaMao = (jogador, indice) => {
+  const carta = estadoJogo.maos[jogador][indice];
+  estadoJogo.maos[jogador].splice(indice, 1);
+  estadoJogo.descarte.push(carta);
+
+  if (estadoJogo.maos[jogador].length === 0) {
+    finalizarJogoCartas(jogador);
+    return;
+  }
+
+  avancarTurno();
+  renderizarJogo();
+
+  if (jogadorDaVez() !== 'voce') {
+    setTimeout(jogarTurnoBot, 900 + Math.random() * 900);
+  }
+};
+
+const jogarCartaUsuario = (indice) => {
+  if (!estadoJogo.ativo || jogadorDaVez() !== 'voce') return;
+
+  const carta = estadoJogo.maos.voce[indice];
+  if (!cartaCombina(carta, topoDescarte())) {
+    mostrarToast('Essa carta não combina em cor nem número com o topo do descarte.', 'erro');
+    return;
+  }
+
+  jogarCartaDaMao('voce', indice);
+};
+
+const comprarCarta = () => {
+  if (!estadoJogo.ativo || jogadorDaVez() !== 'voce') return;
+
+  const temJogavel = estadoJogo.maos.voce.some((carta) => cartaCombina(carta, topoDescarte()));
+  if (temJogavel) {
+    mostrarToast('Você tem uma carta jogável na mão — jogue antes de comprar.', 'aviso');
+    return;
+  }
+
+  estadoJogo.maos.voce.push(comprarUmaCarta());
+  avancarTurno();
+  renderizarJogo();
+
+  if (jogadorDaVez() !== 'voce') {
+    setTimeout(jogarTurnoBot, 900 + Math.random() * 900);
+  }
+};
+
+/** Turno automático de um oponente fictício: joga a primeira carta válida, ou compra. */
+const jogarTurnoBot = () => {
+  if (!estadoJogo.ativo) return;
+
+  const jogador = jogadorDaVez();
+  const mao = estadoJogo.maos[jogador];
+  const indiceJogavel = mao.findIndex((carta) => cartaCombina(carta, topoDescarte()));
+
+  if (indiceJogavel === -1) {
+    mao.push(comprarUmaCarta());
+    avancarTurno();
+    renderizarJogo();
+  } else {
+    const carta = mao[indiceJogavel];
+    mao.splice(indiceJogavel, 1);
+    estadoJogo.descarte.push(carta);
+
+    if (mao.length === 0) {
+      finalizarJogoCartas(jogador);
+      return;
+    }
+
+    avancarTurno();
+    renderizarJogo();
+  }
+
+  if (estadoJogo.ativo && jogadorDaVez() !== 'voce') {
+    setTimeout(jogarTurnoBot, 900 + Math.random() * 900);
+  }
+};
+
+const finalizarJogoCartas = (vencedor) => {
+  estadoJogo.ativo = false;
+  estadoJogo.vencedor = vencedor;
+  renderizarJogo();
+
+  if (vencedor === 'voce') {
+    estado.saldoAtual += PREMIO_SALA;
+    atualizarInterface();
+    mostrarToast(`Você venceu a partida de cartas! Prêmio de R$ ${PREMIO_SALA.toFixed(2)} creditado.`, 'vitoria');
+    adicionarMensagemChat('Sistema', 'Partida encerrada — parabéns ao vencedor!', 'msg-outro');
+  } else {
+    mostrarToast(`${NOMES_EXIBICAO_JOGADORES[vencedor]} venceu a partida. Não foi dessa vez.`, 'derrota');
+    adicionarMensagemChat('Sistema', 'Partida encerrada.', 'msg-outro');
+  }
+
+  setTimeout(() => {
+    const areaJogo = document.getElementById('jogo-uno');
+    if (areaJogo) areaJogo.hidden = true;
+    document.querySelector('.card-sala')?.removeAttribute('hidden');
+    resetarSala();
+  }, 2600);
+};
+
+/** Cria o elemento visual de uma carta. Interativa = pode receber clique (mão do usuário). */
+const criarElementoCarta = (carta, interativa, jogavel) => {
+  const elemento = document.createElement('button');
+  elemento.type = 'button';
+  elemento.className = `carta-uno carta-${carta.cor}`;
+  elemento.textContent = String(carta.valor);
+  elemento.disabled = !interativa || !jogavel;
+  if (!interativa) elemento.tabIndex = -1;
+  return elemento;
+};
+
+const renderizarJogo = () => {
+  const areaOponentes = document.getElementById('jogo-uno-oponentes');
+  const areaDescarte = document.getElementById('jogo-uno-descarte');
+  const areaMao = document.getElementById('jogo-uno-mao');
+  const info = document.getElementById('jogo-uno-info');
+  const btnComprar = document.getElementById('btn-comprar-carta');
+  if (!areaOponentes || !areaDescarte || !areaMao || !info) return;
+
+  areaOponentes.innerHTML = '';
+  OPONENTES_FICTICIOS.forEach((jogador) => {
+    const bloco = document.createElement('div');
+    bloco.className = 'jogo-uno-oponente';
+    bloco.classList.toggle('jogo-uno-oponente-vez', estadoJogo.ativo && jogadorDaVez() === jogador);
+
+    const nome = document.createElement('span');
+    nome.className = 'jogo-uno-oponente-nome';
+    nome.textContent = NOMES_EXIBICAO_JOGADORES[jogador];
+
+    const cartas = document.createElement('span');
+    cartas.className = 'jogo-uno-oponente-cartas';
+    cartas.innerHTML = `<i class="fa-solid fa-clone"></i> ${estadoJogo.maos[jogador]?.length ?? 0}`;
+
+    bloco.append(nome, cartas);
+    areaOponentes.appendChild(bloco);
+  });
+
+  areaDescarte.innerHTML = '';
+  if (estadoJogo.descarte.length > 0) {
+    areaDescarte.appendChild(criarElementoCarta(topoDescarte(), false, false));
+  }
+
+  areaMao.innerHTML = '';
+  estadoJogo.maos.voce?.forEach((carta, indice) => {
+    const podeJogar = estadoJogo.ativo && jogadorDaVez() === 'voce' && cartaCombina(carta, topoDescarte());
+    const elementoCarta = criarElementoCarta(carta, estadoJogo.ativo && jogadorDaVez() === 'voce', podeJogar);
+    elementoCarta.addEventListener('click', () => jogarCartaUsuario(indice));
+    areaMao.appendChild(elementoCarta);
+  });
+
+  if (!estadoJogo.ativo && estadoJogo.vencedor) {
+    info.textContent = estadoJogo.vencedor === 'voce'
+      ? 'Você venceu a partida! 🏆'
+      : `${NOMES_EXIBICAO_JOGADORES[estadoJogo.vencedor]} venceu a partida.`;
+  } else if (jogadorDaVez() === 'voce') {
+    info.textContent = 'Sua vez — jogue uma carta que combine em cor ou número.';
+  } else {
+    info.textContent = `Vez de ${NOMES_EXIBICAO_JOGADORES[jogadorDaVez()]}...`;
+  }
+
+  if (btnComprar) {
+    btnComprar.disabled = !estadoJogo.ativo || jogadorDaVez() !== 'voce';
+  }
 };
 
 // ----------------------------------------------------------------
