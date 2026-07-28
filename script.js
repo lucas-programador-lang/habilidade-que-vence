@@ -28,6 +28,7 @@ const estado = {
     participantesAtuais: 1,
     capacidadeMaxima: 4,
     cheia: false,
+    jogadorInscrito: false,
   },
 };
 
@@ -50,6 +51,8 @@ const ICONES_TOAST = {
   erro: 'fa-solid fa-circle-xmark',
   aviso: 'fa-solid fa-triangle-exclamation',
   info: 'fa-solid fa-circle-info',
+  vitoria: 'fa-solid fa-trophy',
+  derrota: 'fa-solid fa-face-frown',
 };
 
 const obterToastContainer = () => {
@@ -302,13 +305,24 @@ const realizarSaque = () => {
 
 // ----------------------------------------------------------------
 // 7. Sala de jogo
+//    - Clique duplo bloqueado: uma vez inscrito, o botão desabilita
+//      e mostra "Aguardando Oponentes...".
+//    - Oponentes fictícios entram sozinhos em intervalos aleatórios
+//      até 4/4, cada entrada atualiza contador + barra.
+//    - Ao completar, a sala vira "Partida em Andamento": chat recebe
+//      mensagens automáticas e, após 12s, um resultado aleatório
+//      (vitória credita R$ 2,00, derrota não credita nada).
 // ----------------------------------------------------------------
+
+const OPONENTES_FICTICIOS = ['Jogador_2', 'Jogador_3', 'Jogador_4'];
+const PREMIO_SALA = 2.00;
 
 const atualizarInterfaceSala = () => {
   const contador = document.getElementById('contador-players');
   const barra = document.querySelector('.progresso-sala-preenchido');
   const botao = document.querySelector('.btn-entrar-sala');
   const badgeVagas = document.querySelector('.progresso-sala .badge-open');
+  const card = document.querySelector('.card-sala');
 
   if (contador) contador.textContent = estado.sala.participantesAtuais;
 
@@ -318,17 +332,107 @@ const atualizarInterfaceSala = () => {
   }
 
   if (estado.sala.cheia) {
+    card?.classList.add('partida-andamento');
     if (botao) {
       botao.disabled = true;
-      botao.innerHTML = '<i class="fa-solid fa-lock"></i> Sala completa';
+      botao.innerHTML = '<i class="fa-solid fa-bolt"></i> Partida em andamento...';
     }
-    if (badgeVagas) {
-      badgeVagas.classList.add('badge-completa');
+    badgeVagas?.classList.add('badge-completa');
+  } else if (estado.sala.jogadorInscrito) {
+    if (botao) {
+      botao.disabled = true;
+      botao.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Aguardando oponentes...';
     }
   }
 };
 
+/** Zera a sala de volta ao estado inicial, pronta para uma nova rodada. */
+const resetarSala = () => {
+  estado.sala = {
+    participantesAtuais: 1,
+    capacidadeMaxima: 4,
+    cheia: false,
+    jogadorInscrito: false,
+  };
+
+  const botao = document.querySelector('.btn-entrar-sala');
+  const card = document.querySelector('.card-sala');
+  const badgeVagas = document.querySelector('.progresso-sala .badge-open');
+
+  card?.classList.remove('partida-andamento');
+  badgeVagas?.classList.remove('badge-completa');
+  if (botao) {
+    botao.disabled = false;
+    botao.innerHTML = '<i class="fa-solid fa-play"></i> Entrar na Partida (R$ 0,50)';
+  }
+
+  atualizarInterfaceSala();
+};
+
+/** Faz os oponentes fictícios entrarem um a um, em intervalos aleatórios. */
+const iniciarSimulacaoOponentes = () => {
+  const entrarProximoOponente = () => {
+    if (estado.sala.participantesAtuais >= estado.sala.capacidadeMaxima) return;
+
+    estado.sala.participantesAtuais += 1;
+
+    if (estado.sala.participantesAtuais >= estado.sala.capacidadeMaxima) {
+      estado.sala.cheia = true;
+      atualizarInterfaceSala();
+      iniciarPartida();
+      return;
+    }
+
+    atualizarInterfaceSala();
+    const atraso = 1500 + Math.random() * 2500;
+    setTimeout(entrarProximoOponente, atraso);
+  };
+
+  const atrasoInicial = 1200 + Math.random() * 2000;
+  setTimeout(entrarProximoOponente, atrasoInicial);
+};
+
+/** Dispara as mensagens automáticas dos oponentes e agenda o fim da partida. */
+const iniciarPartida = () => {
+  mostrarToast('Sala completa! A partida está começando.', 'sucesso');
+
+  const mensagensAutomaticas = [
+    { autor: OPONENTES_FICTICIOS[0], texto: 'Boa sorte a todos! 🍀' },
+    { autor: 'Sistema', texto: 'Analisando jogadas...' },
+    { autor: OPONENTES_FICTICIOS[1], texto: 'Vamos que vamos!' },
+    { autor: OPONENTES_FICTICIOS[2], texto: 'Essa eu levo 😄' },
+  ];
+
+  mensagensAutomaticas.forEach((msg, indice) => {
+    setTimeout(() => adicionarMensagemChat(msg.autor, msg.texto, 'msg-outro'), 900 + indice * 1600);
+  });
+
+  setTimeout(finalizarPartida, 12000);
+};
+
+/** Sorteia vitória ou derrota, credita o prêmio se for o caso, e reseta a sala. */
+const finalizarPartida = () => {
+  const venceu = Math.random() < 0.5;
+
+  if (venceu) {
+    estado.saldoAtual += PREMIO_SALA;
+    atualizarInterface();
+    mostrarToast(`Vitória! Você levou o prêmio de R$ ${PREMIO_SALA.toFixed(2)}.`, 'vitoria');
+    adicionarMensagemChat('Sistema', 'Partida encerrada — parabéns ao vencedor!', 'msg-outro');
+  } else {
+    mostrarToast('Não foi dessa vez. A partida terminou.', 'derrota');
+    adicionarMensagemChat('Sistema', 'Partida encerrada.', 'msg-outro');
+  }
+
+  resetarSala();
+};
+
 const entrarNaSala = (valor) => {
+  if (estado.sala.jogadorInscrito) {
+    mostrarToast('Você já está inscrito nessa sala. Aguarde os outros participantes.', 'aviso');
+    return;
+  }
+
   if (estado.sala.cheia) {
     mostrarToast('Essa sala já está completa. Aguarde a próxima.', 'aviso');
     return;
@@ -341,41 +445,39 @@ const entrarNaSala = (valor) => {
   }
 
   estado.saldoAtual -= valor;
-  estado.sala.participantesAtuais = Math.min(
-    estado.sala.participantesAtuais + 1,
-    estado.sala.capacidadeMaxima
-  );
+  estado.sala.jogadorInscrito = true;
+  estado.sala.participantesAtuais += 1;
 
   if (estado.sala.participantesAtuais >= estado.sala.capacidadeMaxima) {
     estado.sala.cheia = true;
+    atualizarInterface();
+    atualizarInterfaceSala();
+    iniciarPartida();
+    return;
   }
 
   atualizarInterface();
   atualizarInterfaceSala();
-
-  if (estado.sala.cheia) {
-    mostrarToast('Sala completa! A partida vai começar em instantes.', 'sucesso');
-  } else {
-    mostrarToast(`Investimento de R$ ${valor.toFixed(2)} confirmado! Aguardando completar 4 participantes na sala.`, 'sucesso');
-  }
+  mostrarToast(`Investimento de R$ ${valor.toFixed(2)} confirmado! Aguardando os outros participantes.`, 'sucesso');
+  iniciarSimulacaoOponentes();
 };
 
 // ----------------------------------------------------------------
 // 8. Chat
+//    Função única compartilhada por mensagens do usuário e dos
+//    oponentes fictícios — sempre via createElement + textContent,
+//    nunca innerHTML com texto vindo de fora, o que impede XSS.
 // ----------------------------------------------------------------
 
-const enviarMensagem = () => {
-  const input = document.getElementById('input-chat');
-  const texto = input.value.trim();
-  if (texto === '') return;
-
+const adicionarMensagemChat = (autor, texto, classeExtra) => {
   const chat = document.getElementById('chat-mensagens');
+  if (!chat) return;
 
   const linha = document.createElement('div');
-  linha.className = 'msg msg-proprio';
+  linha.className = `msg ${classeExtra}`;
 
-  const autor = document.createElement('strong');
-  autor.textContent = 'Você: ';
+  const autorEl = document.createElement('strong');
+  autorEl.textContent = `${autor}: `;
 
   const corpo = document.createElement('span');
   corpo.textContent = texto;
@@ -384,11 +486,18 @@ const enviarMensagem = () => {
   hora.className = 'msg-hora';
   hora.textContent = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-  linha.append(autor, corpo, hora);
+  linha.append(autorEl, corpo, hora);
   chat.appendChild(linha);
-
-  input.value = '';
   chat.scrollTop = chat.scrollHeight;
+};
+
+const enviarMensagem = () => {
+  const input = document.getElementById('input-chat');
+  const texto = input.value.trim();
+  if (texto === '') return;
+
+  adicionarMensagemChat('Você', texto, 'msg-proprio');
+  input.value = '';
 };
 
 // ----------------------------------------------------------------
@@ -556,6 +665,35 @@ const adminExcluirConta = async () => {
 };
 
 // ----------------------------------------------------------------
+// 11.5 Navmenu — indicador de item ativo conforme a rolagem
+// ----------------------------------------------------------------
+
+const configurarScrollSpyNavmenu = () => {
+  const links = document.querySelectorAll('.nav-links a[href^="#"]');
+  if (links.length === 0 || !('IntersectionObserver' in window)) return;
+
+  const mapaLinks = new Map();
+  links.forEach((link) => {
+    const id = link.getAttribute('href').slice(1);
+    const secao = document.getElementById(id);
+    if (secao) mapaLinks.set(secao, link);
+  });
+
+  const observer = new IntersectionObserver(
+    (entradas) => {
+      entradas.forEach((entrada) => {
+        const link = mapaLinks.get(entrada.target);
+        if (!link) return;
+        link.classList.toggle('ativo', entrada.isIntersecting);
+      });
+    },
+    { rootMargin: '-40% 0px -50% 0px' }
+  );
+
+  mapaLinks.forEach((_, secao) => observer.observe(secao));
+};
+
+// ----------------------------------------------------------------
 // 12. Inicialização
 // ----------------------------------------------------------------
 
@@ -563,3 +701,4 @@ atualizarInterface();
 atualizarInterfaceSala();
 atualizarNomeConta();
 configurarValidacaoSenha();
+configurarScrollSpyNavmenu();
