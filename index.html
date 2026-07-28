@@ -94,44 +94,71 @@
 
                 <!-- Bloco 1: Salas de Jogos -->
                 <section class="lote-partidas" id="salas">
-                    <h3><i class="fa-solid fa-users"></i> Salas de Jogos Clássicos (4+ Participantes)</h3>
+                    <h3><i class="fa-solid fa-users"></i> Salas de Jogos (Multiplayer Real)</h3>
 
-                    <div class="card-sala">
+                    <div class="card-sala card-sala-uno" id="card-sala-1">
                         <div class="card-sala-info">
                             <div class="card-sala-topo">
-                                <h4>Sala Estratégia #1</h4>
+                                <h4>🃏 Uno Masters</h4>
                                 <span class="badge badge-money">Valendo em Real</span>
                             </div>
                             <p class="card-sala-valores">
                                 <span><i class="fa-solid fa-coins"></i> Investimento: <strong>R$ 0,50</strong></span>
-                                <span><i class="fa-solid fa-trophy"></i> Prêmio Acumulado: <strong>R$ 2,00+</strong></span>
+                                <span><i class="fa-solid fa-trophy"></i> Prêmio: <strong>R$ 2,00+</strong></span>
                             </p>
-
                             <div class="progresso-sala">
-                                <div class="progresso-sala-barra">
-                                    <div class="progresso-sala-preenchido" style="width: 0%;"></div>
-                                </div>
                                 <span class="badge badge-open">
                                     <i class="fa-solid fa-circle"></i>
-                                    <span id="contador-players">0</span>/4 confirmados
+                                    <span id="contador-1">0</span>/4 confirmados
                                 </span>
                             </div>
                         </div>
-                        <button onclick="entrarNaSala(0.50)" class="btn-primario btn-entrar-sala">
+                        <button onclick="entrarNaSala(1, 0.50)" class="btn-primario btn-entrar-sala" id="btn-entrar-1">
                             <i class="fa-solid fa-play"></i> Entrar na Partida (R$ 0,50)
                         </button>
                     </div>
 
-                    <!-- Jogo de cartas (estilo UNO simplificado): só aparece quando a sala fecha 4/4 -->
-                    <div class="jogo-uno" id="jogo-uno" hidden>
-                        <div class="jogo-uno-oponentes" id="jogo-uno-oponentes"></div>
-                        <div class="jogo-uno-mesa">
-                            <div class="jogo-uno-descarte" id="jogo-uno-descarte"></div>
+                    <div class="card-sala card-sala-truco" id="card-sala-2">
+                        <div class="card-sala-info">
+                            <div class="card-sala-topo">
+                                <h4>🂡 Truco de Baralho</h4>
+                                <span class="badge badge-truco">♠ ♥ ♦ ♣</span>
+                            </div>
+                            <p class="card-sala-valores">
+                                <span><i class="fa-solid fa-coins"></i> Investimento: <strong>R$ 1,00</strong></span>
+                                <span><i class="fa-solid fa-trophy"></i> Prêmio: <strong>R$ 4,00+</strong></span>
+                            </p>
+                            <div class="progresso-sala">
+                                <span class="badge badge-open">
+                                    <i class="fa-solid fa-circle"></i>
+                                    <span id="contador-2">0</span>/4 confirmados
+                                </span>
+                            </div>
                         </div>
-                        <p class="jogo-uno-info" id="jogo-uno-info">Aguardando início...</p>
-                        <div class="jogo-uno-mao" id="jogo-uno-mao"></div>
-                        <button type="button" onclick="comprarCarta()" class="btn-primario" id="btn-comprar-carta">
-                            <i class="fa-solid fa-hand-pointer"></i> Comprar carta
+                        <button onclick="entrarNaSala(2, 1.00)" class="btn-primario btn-entrar-sala" id="btn-entrar-2">
+                            <i class="fa-solid fa-play"></i> Entrar na Partida (R$ 1,00)
+                        </button>
+                    </div>
+
+                    <div class="card-sala card-sala-escolha" id="card-sala-3">
+                        <div class="card-sala-info">
+                            <div class="card-sala-topo">
+                                <h4>⚔️ Escolha Livre <span class="badge-nivel">Arena Custom</span></h4>
+                                <span class="badge badge-escolha">Alto Nível</span>
+                            </div>
+                            <p class="card-sala-valores">
+                                <span><i class="fa-solid fa-coins"></i> Investimento: <strong>R$ 2,00</strong></span>
+                                <span><i class="fa-solid fa-trophy"></i> Prêmio: <strong>R$ 8,00+</strong></span>
+                            </p>
+                            <div class="progresso-sala">
+                                <span class="badge badge-open">
+                                    <i class="fa-solid fa-circle"></i>
+                                    <span id="contador-3">0</span>/4 confirmados
+                                </span>
+                            </div>
+                        </div>
+                        <button onclick="entrarNaSala(3, 2.00)" class="btn-primario btn-entrar-sala" id="btn-entrar-3">
+                            <i class="fa-solid fa-play"></i> Entrar na Partida (R$ 2,00)
                         </button>
                     </div>
                 </section>
