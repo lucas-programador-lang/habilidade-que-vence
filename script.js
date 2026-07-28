@@ -7,13 +7,14 @@
      2. Sistema de notificações (toast) e confirmação customizada
      3. Modais (abrir/fechar com animação sincronizada ao CSS)
      4. Interface (saldo)
-     5. Depósito (fluxo em duas etapas: gerar PIX -> confirmar pagamento)
+     5. Depósito (fluxo em duas etapas)
      6. Saque (nome, chave PIX, valor)
      7. Sala de jogo (contador e barra de progresso reais)
      8. Chat
      9. Indicação
-     10. Painel Admin
-     11. Inicialização
+     10. Conta (menu dropdown, perfil, alterar senha, sair)
+     11. Painel Admin
+     12. Inicialização
    ================================================================ */
 
 // ----------------------------------------------------------------
@@ -22,7 +23,7 @@
 
 const estado = {
   saldoAtual: 10.50,
-  depositoPendente: null, // valor aguardando confirmação de pagamento
+  depositoPendente: null,
   sala: {
     participantesAtuais: 1,
     capacidadeMaxima: 4,
@@ -35,6 +36,7 @@ const REGRAS = {
   SAQUE_MINIMO: 10.00,
   TAXA_SAQUE: 0.10,
   DIA_LIBERADO_SAQUE: 0, // 0 = Domingo
+  SENHA_MINIMA: 6,
 };
 
 // ----------------------------------------------------------------
@@ -50,7 +52,6 @@ const ICONES_TOAST = {
   info: 'fa-solid fa-circle-info',
 };
 
-/** Garante que existe um container de toasts no DOM e o retorna. */
 const obterToastContainer = () => {
   let container = document.getElementById('toast-container');
   if (!container) {
@@ -62,12 +63,6 @@ const obterToastContainer = () => {
   return container;
 };
 
-/**
- * Mostra uma notificação toast (mini-card com ícone animado e barra de
- * progresso na base), substituindo o alert() nativo.
- * @param {string} mensagem - Texto a exibir (sempre inserido via textContent).
- * @param {'sucesso'|'erro'|'aviso'|'info'} tipo
- */
 const mostrarToast = (mensagem, tipo = 'info') => {
   const container = obterToastContainer();
 
@@ -79,7 +74,7 @@ const mostrarToast = (mensagem, tipo = 'info') => {
   icone.className = `toast-icon ${ICONES_TOAST[tipo] ?? ICONES_TOAST.info}`;
 
   const texto = document.createElement('span');
-  texto.textContent = mensagem; // textContent: nunca interpreta HTML/JS
+  texto.textContent = mensagem;
 
   const btnFechar = document.createElement('button');
   btnFechar.className = 'toast-fechar';
@@ -107,12 +102,6 @@ const mostrarToast = (mensagem, tipo = 'info') => {
   setTimeout(remover, TOAST_DURACAO_MS);
 };
 
-/**
- * Substitui o confirm() nativo por um modal customizado.
- * @param {string} mensagem
- * @param {string} [titulo='Confirmar ação']
- * @returns {Promise<boolean>} true se o usuário confirmar, false se cancelar.
- */
 const confirmarAcao = (mensagem, titulo = 'Confirmar ação') => {
   return new Promise((resolve) => {
     const overlay = document.createElement('div');
@@ -191,7 +180,7 @@ const fecharModal = (id) => {
   };
 
   modal.addEventListener('animationend', finalizarFechamento, { once: true });
-  setTimeout(finalizarFechamento, 250); // rede de segurança
+  setTimeout(finalizarFechamento, 250);
 };
 
 // ----------------------------------------------------------------
@@ -208,9 +197,6 @@ const atualizarInterface = () => {
 
 // ----------------------------------------------------------------
 // 5. Depósito — fluxo em duas etapas
-//    Etapa "valor": usuário digita o valor e pede o PIX.
-//    Etapa "qr": mostra QR fictício + chave copia-e-cola; o saldo só
-//    é creditado quando o usuário clica em "Confirmar Pagamento".
 // ----------------------------------------------------------------
 
 const mostrarEtapaDeposito = (nomeEtapa) => {
@@ -255,7 +241,6 @@ const copiarChavePix = () => {
   mostrarToast('Chave PIX copiada! Cole no seu banco para pagar.', 'sucesso');
 };
 
-/** Só aqui, na confirmação explícita, o saldo é de fato creditado. */
 const confirmarPagamentoPix = () => {
   if (estado.depositoPendente === null) {
     mostrarToast('Nenhum depósito pendente para confirmar.', 'erro');
@@ -317,11 +302,8 @@ const realizarSaque = () => {
 
 // ----------------------------------------------------------------
 // 7. Sala de jogo
-//    Contador e barra de progresso refletem o estado real da sala —
-//    antes o "1/4" e a barra ficavam fixos mesmo depois de entrar.
 // ----------------------------------------------------------------
 
-/** Atualiza o número exibido e a largura da barra de progresso da sala. */
 const atualizarInterfaceSala = () => {
   const contador = document.getElementById('contador-players');
   const barra = document.querySelector('.progresso-sala-preenchido');
@@ -382,11 +364,6 @@ const entrarNaSala = (valor) => {
 // 8. Chat
 // ----------------------------------------------------------------
 
-/**
- * Insere a mensagem do próprio usuário no chat.
- * Usa createElement + textContent (nunca innerHTML com a string digitada)
- * pra impedir que HTML/script inserido pelo usuário seja executado (XSS).
- */
 const enviarMensagem = () => {
   const input = document.getElementById('input-chat');
   const texto = input.value.trim();
@@ -426,7 +403,137 @@ const copiarLink = () => {
 };
 
 // ----------------------------------------------------------------
-// 10. Painel Admin
+// 10. Conta — dropdown, perfil, alterar senha, sair
+// ----------------------------------------------------------------
+
+const CHAVE_NOME_EXIBICAO = 'nomeExibicao';
+
+/** Mostra o nome de exibição salvo, ou o e-mail como alternativa. */
+const atualizarNomeConta = () => {
+  const elemento = document.getElementById('account-nome');
+  if (!elemento) return;
+
+  const nomeExibicao = localStorage.getItem(CHAVE_NOME_EXIBICAO);
+  const email = localStorage.getItem('usuarioLogado');
+  elemento.textContent = nomeExibicao || email || 'Minha conta';
+};
+
+const alternarMenuConta = (evento) => {
+  evento.stopPropagation();
+  const dropdown = document.getElementById('account-dropdown');
+  const toggle = document.querySelector('.account-menu-toggle');
+  if (!dropdown || !toggle) return;
+
+  const abrindo = dropdown.hidden;
+  dropdown.hidden = !abrindo;
+  toggle.setAttribute('aria-expanded', String(abrindo));
+};
+
+// Fecha o dropdown ao clicar fora dele
+document.addEventListener('click', (evento) => {
+  const dropdown = document.getElementById('account-dropdown');
+  const menu = document.querySelector('.account-menu');
+  if (!dropdown || dropdown.hidden || !menu) return;
+
+  if (!menu.contains(evento.target)) {
+    dropdown.hidden = true;
+    document.querySelector('.account-menu-toggle')?.setAttribute('aria-expanded', 'false');
+  }
+});
+
+const abrirModalPerfil = () => {
+  document.getElementById('account-dropdown').hidden = true;
+
+  const email = localStorage.getItem('usuarioLogado') || '';
+  const nomeExibicao = localStorage.getItem(CHAVE_NOME_EXIBICAO) || '';
+
+  document.getElementById('perfil-email').value = email;
+  document.getElementById('perfil-nome').value = nomeExibicao;
+
+  abrirModal('modal-perfil');
+};
+
+const salvarPerfil = () => {
+  const { value: nome } = document.getElementById('perfil-nome');
+
+  if (nome.trim().length === 0) {
+    localStorage.removeItem(CHAVE_NOME_EXIBICAO);
+  } else {
+    localStorage.setItem(CHAVE_NOME_EXIBICAO, nome.trim());
+  }
+
+  atualizarNomeConta();
+  fecharModal('modal-perfil');
+  mostrarToast('Perfil atualizado com sucesso!', 'sucesso');
+};
+
+/**
+ * Sem backend real, não existe uma "senha atual" armazenada em lugar
+ * nenhum pra conferir contra o que a pessoa digitar aqui — por isso
+ * este fluxo só valida tamanho mínimo e confirmação, e simula o
+ * sucesso. Trocar por uma chamada de API é obrigatório antes de ir
+ * pra produção de verdade.
+ */
+const alterarSenha = () => {
+  const { value: senhaAtual } = document.getElementById('senha-atual');
+  const { value: senhaNova } = document.getElementById('senha-nova');
+  const { value: senhaConfirmar } = document.getElementById('senha-confirmar');
+
+  if (senhaAtual.trim().length === 0) {
+    mostrarToast('Digite sua senha atual.', 'erro');
+    return;
+  }
+
+  if (senhaNova.length < REGRAS.SENHA_MINIMA) {
+    mostrarToast(`A nova senha precisa ter pelo menos ${REGRAS.SENHA_MINIMA} caracteres.`, 'erro');
+    return;
+  }
+
+  if (senhaNova !== senhaConfirmar) {
+    mostrarToast('A confirmação não bate com a nova senha.', 'erro');
+    return;
+  }
+
+  document.getElementById('senha-atual').value = '';
+  document.getElementById('senha-nova').value = '';
+  document.getElementById('senha-confirmar').value = '';
+
+  fecharModal('modal-senha');
+  mostrarToast('Senha alterada com sucesso!', 'sucesso');
+};
+
+/** Valida em tempo real se "confirmar nova senha" bate com "nova senha". */
+const configurarValidacaoSenha = () => {
+  const nova = document.getElementById('senha-nova');
+  const confirmar = document.getElementById('senha-confirmar');
+  if (!nova || !confirmar) return;
+
+  const validar = () => {
+    const grupoConfirmar = confirmar.closest('.input-icon-group');
+    if (!grupoConfirmar || confirmar.value.length === 0) {
+      grupoConfirmar?.classList.remove('senha-confere', 'senha-nao-confere');
+      return;
+    }
+    const confere = confirmar.value === nova.value;
+    grupoConfirmar.classList.toggle('senha-confere', confere);
+    grupoConfirmar.classList.toggle('senha-nao-confere', !confere);
+  };
+
+  nova.addEventListener('input', validar);
+  confirmar.addEventListener('input', validar);
+};
+
+const sairDaConta = () => {
+  localStorage.removeItem('usuarioLogado');
+  localStorage.removeItem(CHAVE_NOME_EXIBICAO);
+  mostrarToast('Sessão encerrada. Até logo!', 'info');
+  setTimeout(() => {
+    window.location.href = 'login.html';
+  }, 900);
+};
+
+// ----------------------------------------------------------------
+// 11. Painel Admin
 // ----------------------------------------------------------------
 
 const adminAlterarSaldo = () => {
@@ -449,8 +556,10 @@ const adminExcluirConta = async () => {
 };
 
 // ----------------------------------------------------------------
-// 11. Inicialização
+// 12. Inicialização
 // ----------------------------------------------------------------
 
 atualizarInterface();
 atualizarInterfaceSala();
+atualizarNomeConta();
+configurarValidacaoSenha();
