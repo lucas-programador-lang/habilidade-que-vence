@@ -222,7 +222,8 @@ label:focus-visible {
 .lote-partidas,
 .chat-container,
 .indicacao-container,
-.card-sala {
+.card-sala,
+.auth-container {
   animation: fade-slide-up 0.5s var(--ease) both;
 }
 
@@ -315,8 +316,6 @@ header::after {
   flex-wrap: wrap;
   margin-left: auto;
 }
-
-/* --- Navmenu (âncoras pras seções) --- */
 
 .nav-links {
   display: flex;
@@ -1050,7 +1049,6 @@ button:active {
   padding: 2.75rem 2.4rem 2.5rem;
   text-align: center;
   box-shadow: 0 40px 80px -30px #000000d0;
-  animation: fade-slide-up 0.5s var(--ease) both;
   position: relative;
   z-index: 1;
   overflow: hidden;
