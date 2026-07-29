@@ -15,73 +15,91 @@
 <body>
     <div class="panda-watermark" aria-hidden="true"></div>
 
-    <header>
-        <div class="logo">
+    <!-- Sidebar: fixa à esquerda no desktop, vira barra inferior no mobile -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
             <i class="fa-solid fa-chess-knight logo-icon"></i>
-            <h1>Habilidade Que Vence</h1>
+            <span class="sidebar-logo-texto">Habilidade Que Vence</span>
         </div>
 
-        <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
-        <label for="nav-toggle" class="nav-toggle-label" aria-label="Abrir menu">
-            <i class="fa-solid fa-bars"></i>
-        </label>
+        <nav class="nav-links" id="nav-abas">
+            <button type="button" data-pagina="salas" class="ativo" aria-current="page">
+                <i class="fa-solid fa-dice"></i> <span>Salas</span>
+            </button>
+            <button type="button" data-pagina="chat">
+                <i class="fa-solid fa-comments"></i> <span>Chat</span>
+            </button>
+            <button type="button" data-pagina="indicacao">
+                <i class="fa-solid fa-share-nodes"></i> <span>Indicação</span>
+            </button>
+        </nav>
 
-        <div class="user-panel">
-            <nav class="nav-links" id="nav-abas">
-                <button type="button" data-pagina="salas" class="ativo" aria-current="page">
-                    <i class="fa-solid fa-dice"></i> Salas
-                </button>
-                <button type="button" data-pagina="chat">
-                    <i class="fa-solid fa-comments"></i> Chat
-                </button>
-                <button type="button" data-pagina="indicacao">
-                    <i class="fa-solid fa-share-nodes"></i> Indicação
-                </button>
-            </nav>
-
-            <div class="finance-panel">
-                <span id="user-saldo"><i class="fa-solid fa-sack-dollar"></i> Saldo: R$ 0,50</span>
-                <div class="finance-actions">
-                    <button onclick="abrirModalDeposito()" class="btn-verde">
-                        <i class="fa-solid fa-circle-plus"></i> Depositar
-                    </button>
-                    <button onclick="abrirModal('modal-sacar')" class="btn-amarelo">
-                        <i class="fa-solid fa-arrow-up-from-bracket"></i> Sacar
-                    </button>
-                </div>
-            </div>
-
-            <div class="account-menu">
-                <button type="button" class="account-menu-toggle" onclick="alternarMenuConta(event)" aria-haspopup="true" aria-expanded="false">
-                    <span class="account-avatar"><i class="fa-solid fa-user"></i></span>
-                    <span id="account-nome" class="account-nome">Minha conta</span>
-                    <i class="fa-solid fa-chevron-down account-chevron"></i>
-                </button>
-                <div class="account-dropdown" id="account-dropdown" hidden>
-                    <button type="button" onclick="abrirModalPerfil()">
-                        <i class="fa-solid fa-id-card"></i> Perfil
-                    </button>
-                    <button type="button" onclick="abrirModal('modal-senha')">
-                        <i class="fa-solid fa-key"></i> Alterar senha
-                    </button>
-                    <button type="button" class="account-sair" onclick="sairDaConta()">
-                        <i class="fa-solid fa-right-from-bracket"></i> Sair
-                    </button>
-                </div>
-            </div>
-
-            <div class="header-links">
-                <a href="admin.html" class="btn-admin" id="link-admin" style="display:none;">
-                    <i class="fa-solid fa-shield-halved"></i> Painel Admin
-                </a>
-                <a href="https://chat.whatsapp.com/IAJfImmgqqz2Ea41KOX0vD" target="_blank" class="btn-whatsapp">
-                    <i class="fab fa-whatsapp"></i> Grupo VIP
-                </a>
-            </div>
+        <div class="sidebar-footer">
+            <a href="admin.html" class="btn-admin" id="link-admin" style="display:none;">
+                <i class="fa-solid fa-shield-halved"></i> <span>Painel Admin</span>
+            </a>
+            <a href="https://chat.whatsapp.com/IAJfImmgqqz2Ea41KOX0vD" target="_blank" class="btn-whatsapp">
+                <i class="fab fa-whatsapp"></i> <span>Grupo VIP</span>
+            </a>
         </div>
-    </header>
+    </aside>
 
-    <main class="container">
+    <div class="app-shell">
+        <header>
+            <div class="logo logo-mobile-oculto">
+                <i class="fa-solid fa-chess-knight logo-icon"></i>
+                <h1>Habilidade Que Vence</h1>
+            </div>
+
+            <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
+            <label for="nav-toggle" class="nav-toggle-label" aria-label="Abrir menu">
+                <i class="fa-solid fa-bars"></i>
+            </label>
+
+            <div class="user-panel">
+                <div class="finance-panel">
+                    <span id="user-saldo"><i class="fa-solid fa-sack-dollar"></i> Saldo: R$ 0,50</span>
+                    <div class="finance-actions">
+                        <button onclick="abrirModalDeposito()" class="btn-verde">
+                            <i class="fa-solid fa-circle-plus"></i> Depositar
+                        </button>
+                        <button onclick="abrirModal('modal-sacar')" class="btn-amarelo">
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i> Sacar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="account-menu">
+                    <button type="button" class="account-menu-toggle" onclick="alternarMenuConta(event)" aria-haspopup="true" aria-expanded="false">
+                        <span class="account-avatar"><i class="fa-solid fa-user"></i></span>
+                        <span id="account-nome" class="account-nome">Minha conta</span>
+                        <i class="fa-solid fa-chevron-down account-chevron"></i>
+                    </button>
+                    <div class="account-dropdown" id="account-dropdown" hidden>
+                        <button type="button" onclick="abrirModalPerfil()">
+                            <i class="fa-solid fa-id-card"></i> Perfil
+                        </button>
+                        <button type="button" onclick="abrirModal('modal-senha')">
+                            <i class="fa-solid fa-key"></i> Alterar senha
+                        </button>
+                        <button type="button" class="account-sair" onclick="sairDaConta()">
+                            <i class="fa-solid fa-right-from-bracket"></i> Sair
+                        </button>
+                    </div>
+                </div>
+
+                <div class="header-links">
+                    <a href="admin.html" class="btn-admin" id="link-admin-header" style="display:none;">
+                        <i class="fa-solid fa-shield-halved"></i> Painel Admin
+                    </a>
+                    <a href="https://chat.whatsapp.com/IAJfImmgqqz2Ea41KOX0vD" target="_blank" class="btn-whatsapp">
+                        <i class="fab fa-whatsapp"></i> Grupo VIP
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <main class="container">
 
         <!-- ============== PÁGINA: SALAS ============== -->
         <section class="pagina ativa" id="pagina-salas" data-pagina="salas">
@@ -268,6 +286,7 @@
             </section>
         </section>
     </main>
+    </div><!-- /.app-shell -->
 
     <!-- Modal Depósito PIX Automático -->
     <div id="modal-depositar" class="modal">
