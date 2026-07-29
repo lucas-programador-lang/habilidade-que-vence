@@ -3,340 +3,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Habilidade Que Vence 🐼</title>
-    <script>
-        // Guarda de acesso: roda antes de qualquer coisa renderizar.
-        // Sem sessão salva -> manda pra tela de login (replace pra não
-        // deixar essa página no histórico do "voltar" do navegador).
-        // Isso é proteção de UX, não segurança: quem editar o
-        // localStorage manualmente ainda entra. Validação real só
-        // existe com um backend checando a sessão de verdade.
-        if (!localStorage.getItem('usuarioLogado')) {
-            window.location.replace('login.html');
-        }
-    </script>
+    <title>Habilidade Que Vence 🐼 | Premium</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="panda-watermark" aria-hidden="true"></div>
+    <script>
+        // Guarda de acesso atualizada
+        if (!localStorage.getItem('usuarioLogado')) {
+            // Em ambiente de produção, descomente a linha abaixo
+            // window.location.replace('login.html');
+        }
+    </script>
 
-    <header>
-        <div class="logo">
-            <i class="fa-solid fa-chess-knight logo-icon"></i>
-            <h1>Habilidade Que Vence</h1>
-        </div>
+    <div class="cyber-grid"></div>
 
-        <!-- Toggle mobile: puramente CSS (checkbox hack), não depende de script.js -->
-        <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
-        <label for="nav-toggle" class="nav-toggle-label" aria-label="Abrir menu">
-            <i class="fa-solid fa-bars"></i>
-        </label>
-
-        <div class="user-panel">
-            <nav class="nav-links">
-                <a href="#salas"><i class="fa-solid fa-dice"></i> Salas</a>
-                <a href="#chat"><i class="fa-solid fa-comments"></i> Chat</a>
-                <a href="#indicacao"><i class="fa-solid fa-share-nodes"></i> Indicação</a>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-chess-knight panda-logo"></i>
+                <h1>Habilidade <span class="text-cyan">Que Vence</span></h1>
+            </div>
+            
+            <nav class="nav-menu">
+                <button class="nav-item active" data-target="salas">
+                    <i class="fa-solid fa-dice nav-icon"></i> Salas
+                </button>
+                <button class="nav-item" data-target="chat">
+                    <i class="fa-solid fa-comments nav-icon"></i> Chat
+                </button>
+                <button class="nav-item" data-target="indicacao">
+                    <i class="fa-solid fa-share-nodes nav-icon"></i> Indicação
+                </button>
             </nav>
 
-            <!-- Sub-painel financeiro: saldo + ações agrupados -->
-            <div class="finance-panel">
-                <span id="user-saldo"><i class="fa-solid fa-sack-dollar"></i> Saldo: R$ 0,50</span>
-                <div class="finance-actions">
-                    <button onclick="abrirModalDeposito()" class="btn-verde">
-                        <i class="fa-solid fa-circle-plus"></i> Depositar
-                    </button>
-                    <button onclick="abrirModal('modal-sacar')" class="btn-amarelo">
-                        <i class="fa-solid fa-arrow-up-from-bracket"></i> Sacar
-                    </button>
-                </div>
-            </div>
-
-            <!-- Menu de conta: perfil, alterar senha, sair -->
-            <div class="account-menu">
-                <button type="button" class="account-menu-toggle" onclick="alternarMenuConta(event)" aria-haspopup="true" aria-expanded="false">
-                    <span class="account-avatar"><i class="fa-solid fa-user"></i></span>
-                    <span id="account-nome" class="account-nome">Minha conta</span>
-                    <i class="fa-solid fa-chevron-down account-chevron"></i>
-                </button>
-                <div class="account-dropdown" id="account-dropdown" hidden>
-                    <button type="button" onclick="abrirModalPerfil()">
-                        <i class="fa-solid fa-id-card"></i> Perfil
-                    </button>
-                    <button type="button" onclick="abrirModal('modal-senha')">
-                        <i class="fa-solid fa-key"></i> Alterar senha
-                    </button>
-                    <button type="button" class="account-sair" onclick="sairDaConta()">
-                        <i class="fa-solid fa-right-from-bracket"></i> Sair
-                    </button>
-                </div>
-            </div>
-
-            <div class="header-links">
-                <a href="admin.html" class="btn-admin" id="link-admin" style="display:none;">
+            <div class="sidebar-footer">
+                <a href="admin.html" class="btn-sidebar-link" id="link-admin" style="display:none;">
                     <i class="fa-solid fa-shield-halved"></i> Painel Admin
                 </a>
-                <a href="https://chat.whatsapp.com/IAJfImmgqqz2Ea41KOX0vD" target="_blank" class="btn-whatsapp">
+                <a href="https://chat.whatsapp.com/IAJfImmgqqz2Ea41KOX0vD" target="_blank" class="btn-sidebar-link text-emerald">
                     <i class="fab fa-whatsapp"></i> Grupo VIP
                 </a>
             </div>
-        </div>
-    </header>
+        </aside>
 
-    <main class="container">
-        <div class="grid-dashboard">
-            <div class="coluna-principal">
-                <section class="banner-desafio">
-                    <h2><i class="fa-solid fa-trophy"></i> Desafio da Diretoria Sra Panda!</h2>
-                    <p>Jogue contra seus aliados, mostre sua estratégia e conquiste o dinheiro acumulado! Partidas a partir de <strong>R$ 0,50</strong> (Mínimo 4 participantes).</p>
-                </section>
-
-                <!-- Bloco 1: Salas de Jogos -->
-                <section class="lote-partidas" id="salas">
-                    <h3><i class="fa-solid fa-users"></i> Salas de Jogos (Multiplayer Real)</h3>
-
-                    <div class="card-sala card-sala-uno" id="card-sala-1">
-                        <div class="card-sala-info">
-                            <div class="card-sala-topo">
-                                <h4>🃏 Uno Masters</h4>
-                                <span class="badge badge-money">Valendo em Real</span>
-                            </div>
-                            <p class="card-sala-valores">
-                                <span><i class="fa-solid fa-coins"></i> Investimento: <strong>R$ 0,50</strong></span>
-                                <span><i class="fa-solid fa-trophy"></i> Prêmio: <strong>R$ 2,00+</strong></span>
-                            </p>
-                            <div class="progresso-sala">
-                                <span class="badge badge-open">
-                                    <i class="fa-solid fa-circle"></i>
-                                    <span id="contador-1">0</span>/4 confirmados
-                                </span>
-                            </div>
-                        </div>
-                        <button onclick="entrarNaSala(1, 0.50)" class="btn-primario btn-entrar-sala" id="btn-entrar-1">
-                            <i class="fa-solid fa-play"></i> Entrar na Partida (R$ 0,50)
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <!-- Finance Panel -->
+                <div class="finance-panel">
+                    <div class="balance">
+                        <i class="fa-solid fa-sack-dollar text-cyan"></i>
+                        <span>Saldo:</span>
+                        <strong id="user-balance">R$ 0,50</strong>
+                    </div>
+                    <div class="finance-actions">
+                        <button onclick="abrirModal('modal-depositar')" class="btn-emerald btn-sm">
+                            <i class="fa-solid fa-circle-plus"></i> Depositar
                         </button>
-                    </div>
-
-                    <div class="card-sala card-sala-truco" id="card-sala-2">
-                        <div class="card-sala-info">
-                            <div class="card-sala-topo">
-                                <h4>🂡 Truco de Baralho</h4>
-                                <span class="badge badge-truco">♠ ♥ ♦ ♣</span>
-                            </div>
-                            <p class="card-sala-valores">
-                                <span><i class="fa-solid fa-coins"></i> Investimento: <strong>R$ 1,00</strong></span>
-                                <span><i class="fa-solid fa-trophy"></i> Prêmio: <strong>R$ 4,00+</strong></span>
-                            </p>
-                            <div class="progresso-sala">
-                                <span class="badge badge-open">
-                                    <i class="fa-solid fa-circle"></i>
-                                    <span id="contador-2">0</span>/4 confirmados
-                                </span>
-                            </div>
-                        </div>
-                        <button onclick="entrarNaSala(2, 1.00)" class="btn-primario btn-entrar-sala" id="btn-entrar-2">
-                            <i class="fa-solid fa-play"></i> Entrar na Partida (R$ 1,00)
+                        <button onclick="abrirModal('modal-sacar')" class="btn-coral btn-sm">
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i> Sacar
                         </button>
-                    </div>
-
-                    <div class="card-sala card-sala-escolha" id="card-sala-3">
-                        <div class="card-sala-info">
-                            <div class="card-sala-topo">
-                                <h4>⚔️ Escolha Livre <span class="badge-nivel">Arena Custom</span></h4>
-                                <span class="badge badge-escolha">Alto Nível</span>
-                            </div>
-                            <p class="card-sala-valores">
-                                <span><i class="fa-solid fa-coins"></i> Investimento: <strong>R$ 2,00</strong></span>
-                                <span><i class="fa-solid fa-trophy"></i> Prêmio: <strong>R$ 8,00+</strong></span>
-                            </p>
-                            <div class="progresso-sala">
-                                <span class="badge badge-open">
-                                    <i class="fa-solid fa-circle"></i>
-                                    <span id="contador-3">0</span>/4 confirmados
-                                </span>
-                            </div>
-                        </div>
-                        <button onclick="entrarNaSala(3, 2.00)" class="btn-primario btn-entrar-sala" id="btn-entrar-3">
-                            <i class="fa-solid fa-play"></i> Entrar na Partida (R$ 2,00)
-                        </button>
-                    </div>
-                </section>
-            </div>
-
-            <div class="coluna-lateral">
-                <!-- Bloco 2: Chat -->
-                <section class="chat-container" id="chat">
-                    <h3><i class="fa-solid fa-comments"></i> Chat da Partida
-                        <span class="badge badge-shield"><i class="fa-solid fa-shield-halved"></i> Anti-Fraude Ativo</span>
-                    </h3>
-                    <div id="chat-mensagens">
-                        <div class="msg-sistema"><i class="fa-solid fa-circle-info"></i> Sistema Anti-Hacker e Antifraude ativado. Boa sorte aos participantes!</div>
-                    </div>
-                    <div class="chat-input-area">
-                        <input type="text" id="input-chat" placeholder="Converse com seu oponente...">
-                        <button onclick="enviarMensagem()" class="btn-primario">
-                            <i class="fa-solid fa-paper-plane"></i> Enviar
-                        </button>
-                    </div>
-                </section>
-
-                <!-- Bloco 3: Indicação -->
-                <section class="indicacao-container" id="indicacao">
-                    <h3><i class="fa-solid fa-share-nodes"></i> Seu Link de Indicação</h3>
-                    <p class="indicacao-destaque">
-                        <span class="badge badge-money">8% de comissão</span>
-                        Compartilhe seu link e ganhe 8% de tudo o que seus indicados depositarem:
-                    </p>
-                    <div class="indicacao-input-row">
-                        <input type="text" id="link-afiliado" readonly value="https://habilidadequevence.com/register.html?ref=USER123">
-                        <button onclick="copiarLink()" class="btn-primario">
-                            <i class="fa-solid fa-copy"></i> Copiar Link
-                        </button>
-                    </div>
-                </section>
-            </div>
-        </div>
-    </main>
-
-    <!-- Modal Depósito PIX Automático — duas etapas -->
-    <div id="modal-depositar" class="modal">
-        <div class="modal-conteudo">
-            <div class="modal-header">
-                <i class="fa-solid fa-qrcode modal-header-icon"></i>
-                <h2>Depósito Automático PIX</h2>
-                <span onclick="fecharModal('modal-depositar')" class="fechar" role="button" aria-label="Fechar">&times;</span>
-            </div>
-
-            <!-- Etapa 1: valor -->
-            <div class="deposito-etapa" data-etapa="valor">
-                <p>Valor mínimo: R$ 0,50</p>
-                <input type="number" id="valor-deposito" placeholder="0.50" min="0.50" step="0.50" value="0.50">
-                <button onclick="gerarPixDeposito()" class="btn-verde">
-                    <i class="fa-solid fa-bolt"></i> Gerar PIX API
-                </button>
-            </div>
-
-            <!-- Etapa 2: QR fictício + confirmação (só aparece após gerar o PIX) -->
-            <div class="deposito-etapa deposito-etapa-qr" data-etapa="qr" hidden>
-                <div class="pix-qrcode" aria-hidden="true">
-                    <div class="pix-qrcode-quadro">
-                        <div class="pix-qrcode-canto pix-qrcode-canto-tl"></div>
-                        <div class="pix-qrcode-canto pix-qrcode-canto-tr"></div>
-                        <div class="pix-qrcode-canto pix-qrcode-canto-bl"></div>
                     </div>
                 </div>
 
-                <p class="pix-valor-linha">Valor a pagar: <strong id="deposito-valor-exibido">R$ 0,00</strong></p>
+                <!-- Account Menu -->
+                <div class="account-menu">
+                    <button type="button" class="account-menu-toggle" onclick="alternarMenuConta(event)">
+                        <span class="account-avatar"><i class="fa-solid fa-user"></i></span>
+                        <span id="account-nome">Minha conta</span>
+                        <i class="fa-solid fa-chevron-down text-muted"></i>
+                    </button>
+                    <div class="account-dropdown hidden" id="account-dropdown">
+                        <button onclick="abrirModal('modal-perfil')"><i class="fa-solid fa-id-card"></i> Perfil</button>
+                        <button onclick="abrirModal('modal-senha')"><i class="fa-solid fa-key"></i> Alterar senha</button>
+                        <button onclick="sairDaConta()" class="text-coral"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+                    </div>
+                </div>
+            </header>
 
+            <div class="views-container">
+                <!-- VIEW 1: Salas -->
+                <section id="view-salas" class="view active">
+                    <div class="banner-desafio">
+                        <h2><i class="fa-solid fa-trophy text-gold"></i> Desafio da Diretoria Sra Panda!</h2>
+                        <p>Jogue contra seus aliados e conquiste o dinheiro acumulado! Partidas a partir de <strong>R$ 0,50</strong>.</p>
+                    </div>
+
+                    <div class="rooms-grid">
+                        <!-- Sala 1 -->
+                        <div class="room-card style-uno">
+                            <div class="room-header">🃏 Uno Masters <span class="badge">Real</span></div>
+                            <div class="room-details">
+                                <p><i class="fa-solid fa-coins"></i> Investimento: <span>R$ 0,50</span></p>
+                                <p><i class="fa-solid fa-trophy"></i> Prêmio: <span class="text-emerald">R$ 2,00</span></p>
+                            </div>
+                            <div class="progresso-sala"><span id="contador-1">0</span>/4 confirmados</div>
+                            <button class="btn-join" data-id="1" data-cost="0.5" data-prize="2">
+                                <i class="fa-solid fa-play"></i> Entrar na Partida
+                            </button>
+                        </div>
+                        
+                        <!-- Sala 2 -->
+                        <div class="room-card style-truco">
+                            <div class="room-header">🂡 Truco de Baralho <span class="badge text-emerald">♠♥♦♣</span></div>
+                            <div class="room-details">
+                                <p><i class="fa-solid fa-coins"></i> Investimento: <span>R$ 1,00</span></p>
+                                <p><i class="fa-solid fa-trophy"></i> Prêmio: <span class="text-emerald">R$ 4,00</span></p>
+                            </div>
+                            <div class="progresso-sala"><span id="contador-2">0</span>/4 confirmados</div>
+                            <button class="btn-join" data-id="2" data-cost="1" data-prize="4">
+                                <i class="fa-solid fa-play"></i> Entrar na Partida
+                            </button>
+                        </div>
+
+                        <!-- Sala 3 -->
+                        <div class="room-card style-arena">
+                            <div class="room-header">⚔️ Escolha Livre <span class="badge text-gold">Alto Nível</span></div>
+                            <div class="room-details">
+                                <p><i class="fa-solid fa-coins"></i> Investimento: <span>R$ 2,00</span></p>
+                                <p><i class="fa-solid fa-trophy"></i> Prêmio: <span class="text-emerald">R$ 8,00</span></p>
+                            </div>
+                            <div class="progresso-sala"><span id="contador-3">0</span>/4 confirmados</div>
+                            <button class="btn-join" data-id="3" data-cost="2" data-prize="8">
+                                <i class="fa-solid fa-play"></i> Entrar na Partida
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 2: Chat -->
+                <section id="view-chat" class="view">
+                    <div class="view-header flex-between">
+                        <h2>Chat da Partida</h2>
+                        <div class="security-badge pulse"><i class="fa-solid fa-shield-halved"></i> Anti-Fraude Ativo</div>
+                    </div>
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chat-mensagens">
+                            <div class="message system"><i class="fa-solid fa-circle-info"></i> Sistema Anti-Hacker ativado. Boa sorte!</div>
+                        </div>
+                        <form class="chat-input-form" id="chat-form">
+                            <input type="text" id="input-chat" placeholder="Converse com seu oponente..." autocomplete="off">
+                            <button type="submit" class="btn-cyan"><i class="fa-solid fa-paper-plane"></i></button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- VIEW 3: Indicação -->
+                <section id="view-indicacao" class="view">
+                    <div class="view-header">
+                        <h2>Seu Link de Indicação</h2>
+                        <p>Compartilhe e ganhe <span class="text-emerald font-bold">8% de comissão</span> dos depósitos.</p>
+                    </div>
+                    <div class="referral-box">
+                        <div class="input-group">
+                            <input type="text" id="link-afiliado" value="https://habilidadequevence.com/register.html?ref=USER123" readonly>
+                            <button id="btn-copy-ref" class="btn-cyan"><i class="fa-solid fa-copy"></i> Copiar</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODALS -->
+    <!-- Modal Depósito -->
+    <div id="modal-depositar" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close" onclick="fecharModal('modal-depositar')">&times;</button>
+            <div class="modal-header">
+                <i class="fa-solid fa-qrcode text-emerald"></i>
+                <h2>Depósito PIX</h2>
+            </div>
+            
+            <div id="etapa-valor" class="cyber-form">
+                <label>Valor mínimo: R$ 0,50</label>
                 <div class="input-icon-group">
-                    <input type="text" id="pix-copia-cola" readonly value="">
-                    <i class="fa-solid fa-key"></i>
+                    <i class="fa-solid fa-money-bill"></i>
+                    <input type="number" id="valor-deposito" min="0.50" step="0.50" value="0.50">
                 </div>
+                <button onclick="gerarPixDeposito()" class="btn-emerald w-100"><i class="fa-solid fa-bolt"></i> Gerar PIX API</button>
+            </div>
 
-                <button onclick="copiarChavePix()" class="btn-primario">
-                    <i class="fa-solid fa-copy"></i> Copiar Chave PIX Copia e Cola
-                </button>
-                <button onclick="confirmarPagamentoPix()" class="btn-verde">
-                    <i class="fa-solid fa-check"></i> Confirmar Pagamento
-                </button>
+            <div id="etapa-qr" class="cyber-form hidden">
+                <div class="pix-qrcode-box">
+                    <i class="fa-solid fa-qrcode fa-4x text-emerald"></i>
+                </div>
+                <p class="text-center">Valor a pagar: <strong id="deposito-valor-exibido" class="text-emerald">R$ 0,00</strong></p>
+                <div class="input-icon-group">
+                    <i class="fa-solid fa-key"></i>
+                    <input type="text" id="pix-copia-cola" readonly value="00020101021126580014br.gov.bcb.pix...">
+                </div>
+                <button onclick="copiarChavePix()" class="btn-cyan w-100 mb-2"><i class="fa-solid fa-copy"></i> Copiar Copia e Cola</button>
+                <button onclick="confirmarPagamentoPix()" class="btn-emerald w-100"><i class="fa-solid fa-check"></i> Já Paguei</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Saque — Nome, Chave PIX e Valor -->
-    <div id="modal-sacar" class="modal">
-        <div class="modal-conteudo">
+    <!-- Modal Saque -->
+    <div id="modal-sacar" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close" onclick="fecharModal('modal-sacar')">&times;</button>
             <div class="modal-header">
-                <i class="fa-solid fa-money-bill-transfer modal-header-icon"></i>
-                <h2>Solicitar Saque Automático</h2>
-                <span onclick="fecharModal('modal-sacar')" class="fechar" role="button" aria-label="Fechar">&times;</span>
+                <i class="fa-solid fa-money-bill-transfer text-coral"></i>
+                <h2>Saque Automático</h2>
             </div>
-
-            <div class="saque-regras">
-                <span class="badge badge-money">Mínimo: R$ 10,00</span>
-                <span class="badge badge-money">Taxa: 10%</span>
+            <div class="saque-regras text-center mb-4">
+                <span class="badge">Mín. R$ 10,00</span>
+                <span class="badge">Taxa 10%</span>
             </div>
-            <p class="aviso-domingo">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-                Saques liberados exclusivamente aos <strong>DOMINGOS</strong>.
-            </p>
-
-            <div class="input-icon-group">
-                <input type="text" id="saque-nome" placeholder="Nome completo">
-                <i class="fa-solid fa-user"></i>
-            </div>
-
-            <div class="input-icon-group">
-                <input type="text" id="saque-chave-pix" placeholder="Chave PIX (CPF, e-mail ou telefone)">
-                <i class="fa-solid fa-key"></i>
-            </div>
-
-            <div class="input-icon-group">
-                <input type="number" id="valor-saque" placeholder="Valor do saque (mín. 10.00)" min="10.00">
-                <i class="fa-solid fa-sack-dollar"></i>
-            </div>
-
-            <button onclick="realizarSaque()" class="btn-amarelo">
-                <i class="fa-solid fa-paper-plane"></i> Solicitar Saque API
-            </button>
+            <p class="text-coral text-center mb-4"><i class="fa-solid fa-triangle-exclamation"></i> Saques liberados exclusivamente aos <strong>DOMINGOS</strong>.</p>
+            
+            <form id="withdraw-form" class="cyber-form">
+                <div class="input-icon-group">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="saque-nome" placeholder="Nome completo" required>
+                </div>
+                <div class="input-icon-group">
+                    <i class="fa-solid fa-key"></i>
+                    <input type="text" id="saque-chave-pix" placeholder="Chave PIX" required>
+                </div>
+                <div class="input-icon-group">
+                    <i class="fa-solid fa-sack-dollar"></i>
+                    <input type="number" id="valor-saque" placeholder="Valor do saque" min="10" step="0.50" required>
+                </div>
+                <button type="submit" class="btn-coral w-100"><i class="fa-solid fa-paper-plane"></i> Solicitar Saque</button>
+            </form>
         </div>
     </div>
 
-    <!-- Modal Alterar Senha -->
-    <div id="modal-senha" class="modal">
-        <div class="modal-conteudo">
+    <!-- Modal Senha -->
+    <div id="modal-senha" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close" onclick="fecharModal('modal-senha')">&times;</button>
             <div class="modal-header">
-                <i class="fa-solid fa-key modal-header-icon"></i>
-                <h2>Alterar senha</h2>
-                <span onclick="fecharModal('modal-senha')" class="fechar" role="button" aria-label="Fechar">&times;</span>
+                <i class="fa-solid fa-key text-cyan"></i>
+                <h2>Alterar Senha</h2>
             </div>
-
-            <div class="input-icon-group">
-                <input type="password" id="senha-atual" placeholder="Senha atual" autocomplete="current-password">
-                <i class="fa-solid fa-lock"></i>
+            <div class="cyber-form">
+                <div class="input-icon-group">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="senha-atual" placeholder="Senha atual">
+                </div>
+                <div class="input-icon-group">
+                    <i class="fa-solid fa-key"></i>
+                    <input type="password" id="senha-nova" placeholder="Nova senha">
+                </div>
+                <div class="input-icon-group">
+                    <i class="fa-solid fa-check-double"></i>
+                    <input type="password" id="senha-confirmar" placeholder="Confirmar senha">
+                </div>
+                <button onclick="alterarSenha()" class="btn-cyan w-100">Salvar Senha</button>
             </div>
-
-            <div class="input-icon-group">
-                <input type="password" id="senha-nova" placeholder="Nova senha (mín. 6 caracteres)" autocomplete="new-password">
-                <i class="fa-solid fa-key"></i>
-            </div>
-
-            <div class="input-icon-group">
-                <input type="password" id="senha-confirmar" placeholder="Confirmar nova senha" autocomplete="new-password">
-                <i class="fa-solid fa-check-double"></i>
-            </div>
-
-            <button onclick="alterarSenha()" class="btn-primario">
-                <i class="fa-solid fa-floppy-disk"></i> Salvar nova senha
-            </button>
         </div>
     </div>
 
     <!-- Modal Perfil -->
-    <div id="modal-perfil" class="modal">
-        <div class="modal-conteudo">
+    <div id="modal-perfil" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close" onclick="fecharModal('modal-perfil')">&times;</button>
             <div class="modal-header">
-                <i class="fa-solid fa-id-card modal-header-icon"></i>
-                <h2>Meu perfil</h2>
-                <span onclick="fecharModal('modal-perfil')" class="fechar" role="button" aria-label="Fechar">&times;</span>
+                <i class="fa-solid fa-id-card text-emerald"></i>
+                <h2>Meu Perfil</h2>
             </div>
-
-            <div class="input-icon-group">
-                <input type="text" id="perfil-nome" placeholder="Nome de exibição">
-                <i class="fa-solid fa-user"></i>
+            <div class="cyber-form">
+                <div class="input-icon-group">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="perfil-nome" placeholder="Nome de exibição">
+                </div>
+                <div class="input-icon-group">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="perfil-email" value="jogador@panda.gg" readonly>
+                </div>
+                <button onclick="salvarPerfil()" class="btn-emerald w-100">Salvar Alterações</button>
             </div>
-
-            <div class="input-icon-group">
-                <input type="email" id="perfil-email" readonly>
-                <i class="fa-solid fa-envelope"></i>
-            </div>
-
-            <button onclick="salvarPerfil()" class="btn-verde">
-                <i class="fa-solid fa-floppy-disk"></i> Salvar alterações
-            </button>
         </div>
     </div>
+
+    <!-- Game Engine Arena -->
+    <div id="game-arena" class="game-overlay hidden">
+        <div class="arena-header">
+            <h3>Torneio em Andamento</h3>
+            <div id="arena-timer-display" class="timer-display">Turno: 10s</div>
+        </div>
+        <div class="arena-table">
+            <div class="player-slot top" id="player-2">Oponente 2</div>
+            <div class="player-slot left" id="player-1">Oponente 1</div>
+            <div class="player-slot right" id="player-3">Oponente 3</div>
+            <div class="player-slot bottom current-user" id="player-0">
+                Você
+                <button id="btn-play-turn" class="btn-cyan" disabled>Jogar Turno</button>
+            </div>
+            <div class="center-pot">
+                Prêmio: <span id="arena-prize">R$ 0,00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toasts -->
+    <div id="toast-container"></div>
 
     <script src="script.js"></script>
 </body>
