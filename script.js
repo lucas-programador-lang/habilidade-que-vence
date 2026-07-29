@@ -390,7 +390,7 @@ const cronometrosAtivos = {}; // salaId -> setInterval do relógio local
 const FIREBASE_DISPONIVEL = () =>
   typeof firebase !== 'undefined' &&
   typeof FIREBASE_CONFIG !== 'undefined' &&
-  FIREBASE_CONFIG.apiKey !== 'COLE_AQUI_SUA_API_KEY';
+  FIREBASE_CONFIG.apiKey !== 'AIzaSyDfh8xO6khU15_ut3AhEkz-eQ8cOQVGovI';
 
 const iniciarFirebase = () => {
   if (!FIREBASE_DISPONIVEL()) return false;
