@@ -8,12 +8,13 @@
      4. Interface (saldo)
      5. Depósito (duas etapas)
      6. Saque
-     7. Salas (arquitetura pronta para backend real — sem robôs)
-     8. Chat (XSS-safe)
-     9. Indicação
-     10. Conta (perfil, senha, sair)
-     11. Admin
-     12. Inicialização
+     7. Navegação em abas isoladas (páginas)
+     8. Salas (honesto — sem robôs, sem fila falsa)
+     9. Chat (XSS-safe)
+     10. Indicação
+     11. Conta (perfil, senha, sair)
+     12. Admin
+     13. Inicialização
    ================================================================ */
 
 // ----------------------------------------------------------------
@@ -24,9 +25,9 @@ const CHAVE_SALDO = 'saldoAtual';
 const CHAVE_SALAS_INSCRITAS = 'salasInscritas';
 
 const SALAS_CONFIG = {
-  1: { valor: 0.50, premio: 2.00 },
-  2: { valor: 1.00, premio: 4.00 },
-  3: { valor: 2.00, premio: 8.00 },
+  1: { nome: 'Uno Masters', valor: 0.50, premio: 2.00 },
+  2: { nome: 'Truco de Baralho', valor: 1.00, premio: 4.00 },
+  3: { nome: 'Arena da Escolha', valor: 2.00, premio: 8.00 },
 };
 
 const carregarSaldoInicial = () => {
@@ -212,7 +213,7 @@ const fecharModal = (id) => {
 };
 
 // ----------------------------------------------------------------
-// 4. Interface (saldo) — toda mudança de saldo persiste na hora
+// 4. Interface (saldo)
 // ----------------------------------------------------------------
 
 const atualizarInterface = () => {
@@ -323,64 +324,129 @@ const realizarSaque = () => {
 };
 
 // ----------------------------------------------------------------
-// 7. Salas — arquitetura pronta para backend real, sem robôs
-//    entrarNaSala() só desconta, persiste e trava o botão. Não há
-//    mais nenhum timer simulando oponentes: sem servidor real
-//    (WebSocket/API), a sala fica "Inscrito com Sucesso" e não tem
-//    como avançar sozinha — isso é intencional e honesto, não bug.
+// 7. Navegação em abas isoladas — cada aba é uma página cheia,
+//    trocada via JS (sem scroll), com hash na URL para deep-link.
+// ----------------------------------------------------------------
+
+const PAGINA_PADRAO = 'salas';
+
+const mostrarPagina = (nomePagina) => {
+  const paginas = document.querySelectorAll('.pagina');
+  const links = document.querySelectorAll('#nav-abas button');
+  let existe = false;
+
+  paginas.forEach((pagina) => {
+    const ativa = pagina.dataset.pagina === nomePagina;
+    pagina.classList.toggle('ativa', ativa);
+    if (ativa) existe = true;
+  });
+
+  if (!existe) {
+    mostrarPagina(PAGINA_PADRAO);
+    return;
+  }
+
+  links.forEach((link) => {
+    const ativo = link.dataset.pagina === nomePagina;
+    link.classList.toggle('ativo', ativo);
+    link.setAttribute('aria-current', ativo ? 'page' : 'false');
+  });
+
+  if (window.location.hash.slice(1) !== nomePagina) {
+    history.replaceState(null, '', `#${nomePagina}`);
+  }
+
+  // Fecha o menu mobile ao trocar de página
+  const navToggle = document.getElementById('nav-toggle');
+  if (navToggle) navToggle.checked = false;
+};
+
+const configurarNavegacaoAbas = () => {
+  document.querySelectorAll('#nav-abas button').forEach((botao) => {
+    botao.addEventListener('click', () => mostrarPagina(botao.dataset.pagina));
+  });
+
+  window.addEventListener('hashchange', () => {
+    mostrarPagina(window.location.hash.slice(1) || PAGINA_PADRAO);
+  });
+
+  mostrarPagina(window.location.hash.slice(1) || PAGINA_PADRAO);
+};
+
+// ----------------------------------------------------------------
+// 8. Salas — honesto: sem robôs, sem fila falsa, sem resultado
+//    decidido no cliente. entrarNaSala() desconta, persiste e
+//    trava o botão mostrando que a mesa aguarda oponentes reais.
+//    processarResultadoPartida() é o único ponto que credita
+//    prêmio ou fecha a inscrição — e só é chamado por uma conexão
+//    de backend real (WebSocket/API), nunca por um timer local.
 // ----------------------------------------------------------------
 
 const atualizarInterfaceSala = (salaId) => {
+  const config = SALAS_CONFIG[salaId];
+  const sala = estado.salas[salaId];
   const botao = document.getElementById(`btn-entrar-${salaId}`);
-  const contador = document.getElementById(`contador-${salaId}`);
-  if (!botao) return;
+  const badge = document.getElementById(`badge-sala-${salaId}`);
+  const nota = document.getElementById(`nota-sala-${salaId}`);
+  if (!config || !sala || !botao) return;
 
-  if (estado.salas[salaId].inscrito) {
+  if (sala.inscrito) {
     botao.disabled = true;
-    botao.innerHTML = '<i class="fa-solid fa-circle-check"></i> Inscrito com Sucesso';
-    if (contador) contador.textContent = '1';
+    botao.innerHTML = '<i class="fa-solid fa-hourglass-half"></i> Aguardando Oponentes...';
+    if (badge) {
+      badge.classList.remove('badge-open');
+      badge.classList.add('badge-wait');
+      badge.innerHTML = '<i class="fa-solid fa-circle-notch"></i> Inscrito';
+    }
+    if (nota) nota.textContent = 'Você está confirmado. Aguardando jogadores reais para começar.';
+  } else {
+    botao.disabled = false;
+    botao.innerHTML = `<i class="fa-solid fa-play"></i> Entrar na Partida (R$ ${config.valor.toFixed(2).replace('.', ',')})`;
+    if (badge) {
+      badge.classList.remove('badge-wait');
+      badge.classList.add('badge-open');
+      badge.innerHTML = '<i class="fa-solid fa-circle"></i> Sala aberta';
+    }
+    if (nota) nota.textContent = 'Aguardando jogadores reais entrarem.';
   }
 };
 
-const entrarNaSala = (salaId, valor) => {
+const entrarNaSala = (salaId) => {
   const sala = estado.salas[salaId];
-  if (!sala) return;
+  const config = SALAS_CONFIG[salaId];
+  if (!sala || !config) return;
 
   if (sala.inscrito) {
     mostrarToast('Você já está inscrito nessa sala.', 'aviso');
     return;
   }
 
-  if (estado.saldoAtual < valor) {
-    mostrarToast(`Saldo insuficiente para investir nesta partida! Faça um depósito a partir de R$ ${REGRAS.DEPOSITO_MINIMO.toFixed(2)}.`, 'aviso');
+  if (estado.saldoAtual < config.valor) {
+    mostrarToast(`Saldo insuficiente para investir na ${config.nome}! Faça um depósito a partir de R$ ${REGRAS.DEPOSITO_MINIMO.toFixed(2)}.`, 'aviso');
     abrirModalDeposito();
     return;
   }
 
-  estado.saldoAtual -= valor;
+  estado.saldoAtual -= config.valor;
   sala.inscrito = true;
 
   atualizarInterface();
   atualizarInterfaceSala(salaId);
-  mostrarToast(`Inscrição confirmada! R$ ${valor.toFixed(2)} descontado. Aguardando outros jogadores reais entrarem.`, 'sucesso');
+  mostrarToast(`Inscrição confirmada na ${config.nome}! R$ ${config.valor.toFixed(2)} descontado. Aguardando outros jogadores reais entrarem.`, 'sucesso');
 
   // 🔌 PONTO DE INTEGRAÇÃO COM BACKEND REAL (WebSocket / API)
-  // Aqui é onde uma conexão de verdade entraria para matchmaking
-  // e resultado da partida. Exemplo de estrutura esperada:
-  //
   //   const socket = io('wss://seu-servidor.com');
   //   socket.emit('entrarFila', { salaId, usuario: localStorage.getItem('usuarioLogado') });
   //   socket.on('partidaFinalizada', ({ venceu }) => processarResultadoPartida(salaId, venceu));
   //
-  // Sem esse servidor, a sala fica travada em "Inscrito com Sucesso"
-  // — não existe like um "fake win" pra disfarçar a ausência de
-  // oponentes reais.
+  // Sem esse servidor, a sala fica em "Aguardando Oponentes..." —
+  // não existe fila fake nem resultado decidido localmente.
 };
 
 /**
- * Ponto de integração: uma conexão real com backend chamaria esta
- * função ao final de uma partida de verdade. Não é chamada em
- * nenhum lugar do código hoje — não há robô simulando o resultado.
+ * Chamada apenas por uma integração de backend real ao final de
+ * uma partida de verdade. Não é chamada em nenhum lugar do código
+ * hoje — não há robô simulando o resultado.
  * @param {string} salaId
  * @param {boolean} venceu
  */
@@ -392,25 +458,19 @@ const processarResultadoPartida = (salaId, venceu) => {
   if (venceu) {
     estado.saldoAtual += config.premio;
     atualizarInterface();
-    mostrarToast(`Vitória! Você levou o prêmio de R$ ${config.premio.toFixed(2)}.`, 'vitoria');
+    mostrarToast(`Vitória na ${config.nome}! Você levou o prêmio de R$ ${config.premio.toFixed(2)}.`, 'vitoria');
   } else {
-    mostrarToast('Não foi dessa vez. O valor investido não é devolvido.', 'derrota');
+    mostrarToast(`Não foi dessa vez na ${config.nome}. O valor investido não é devolvido.`, 'derrota');
   }
 
   sala.inscrito = false;
   persistirEstado();
-  const botao = document.getElementById(`btn-entrar-${salaId}`);
-  const contador = document.getElementById(`contador-${salaId}`);
-  if (botao) {
-    botao.disabled = false;
-    botao.innerHTML = `<i class="fa-solid fa-play"></i> Entrar na Partida (R$ ${config.valor.toFixed(2).replace('.', ',')})`;
-  }
-  if (contador) contador.textContent = '0';
+  atualizarInterfaceSala(salaId);
 };
 
 // ----------------------------------------------------------------
-// 8. Chat — sempre via createElement + textContent (nunca innerHTML
-//    com texto do usuário), pra impedir XSS.
+// 9. Chat — sempre via createElement + textContent, nunca innerHTML
+//    com texto do usuário, pra impedir XSS.
 // ----------------------------------------------------------------
 
 const adicionarMensagemChat = (autor, texto, classeExtra) => {
@@ -443,8 +503,28 @@ const enviarMensagem = () => {
   input.value = '';
 };
 
+const configurarEnvioChatComEnter = () => {
+  const input = document.getElementById('input-chat');
+  if (!input) return;
+  input.addEventListener('keydown', (evento) => {
+    if (evento.key === 'Enter') enviarMensagem();
+  });
+};
+
+const configurarSelecaoCanais = () => {
+  document.querySelectorAll('.chat-canal').forEach((canal) => {
+    canal.addEventListener('click', () => {
+      document.querySelectorAll('.chat-canal').forEach((c) => c.classList.remove('ativo'));
+      canal.classList.add('ativo');
+      const nome = canal.textContent.trim();
+      const titulo = document.querySelector('.chat-header h3');
+      if (titulo) titulo.innerHTML = `<i class="fa-solid fa-hashtag"></i> ${nome.replace('#', '').trim()}`;
+    });
+  });
+};
+
 // ----------------------------------------------------------------
-// 9. Indicação
+// 10. Indicação
 // ----------------------------------------------------------------
 
 const copiarLink = () => {
@@ -455,7 +535,7 @@ const copiarLink = () => {
 };
 
 // ----------------------------------------------------------------
-// 10. Conta — dropdown, perfil, alterar senha, sair
+// 11. Conta — dropdown, perfil, alterar senha, sair
 // ----------------------------------------------------------------
 
 const CHAVE_NOME_EXIBICAO = 'nomeExibicao';
@@ -564,7 +644,7 @@ const sairDaConta = () => {
 };
 
 // ----------------------------------------------------------------
-// 11. Admin
+// 12. Admin
 // ----------------------------------------------------------------
 
 const adminAlterarSaldo = () => {
@@ -586,40 +666,13 @@ const adminExcluirConta = async () => {
 };
 
 // ----------------------------------------------------------------
-// Navmenu — indicador de item ativo conforme a rolagem
-// ----------------------------------------------------------------
-
-const configurarScrollSpyNavmenu = () => {
-  const links = document.querySelectorAll('.nav-links a[href^="#"]');
-  if (links.length === 0 || !('IntersectionObserver' in window)) return;
-
-  const mapaLinks = new Map();
-  links.forEach((link) => {
-    const id = link.getAttribute('href').slice(1);
-    const secao = document.getElementById(id);
-    if (secao) mapaLinks.set(secao, link);
-  });
-
-  const observer = new IntersectionObserver(
-    (entradas) => {
-      entradas.forEach((entrada) => {
-        const link = mapaLinks.get(entrada.target);
-        if (!link) return;
-        link.classList.toggle('ativo', entrada.isIntersecting);
-      });
-    },
-    { rootMargin: '-40% 0px -50% 0px' }
-  );
-
-  mapaLinks.forEach((_, secao) => observer.observe(secao));
-};
-
-// ----------------------------------------------------------------
-// 12. Inicialização
+// 13. Inicialização
 // ----------------------------------------------------------------
 
 atualizarInterface();
 Object.keys(estado.salas).forEach((id) => atualizarInterfaceSala(id));
 atualizarNomeConta();
 configurarValidacaoSenha();
-configurarScrollSpyNavmenu();
+configurarNavegacaoAbas();
+configurarEnvioChatComEnter();
+configurarSelecaoCanais();
