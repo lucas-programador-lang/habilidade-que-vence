@@ -364,6 +364,21 @@ button:active { transform: scale(0.97) translateY(0); }
 .progresso-sala { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .progresso-sala-nota { font-size: 0.78rem; color: var(--text-muted); }
 
+.partida-painel {
+  margin-top: 12px; width: 100%; padding: 10px 14px; border-radius: var(--radius-sm);
+  background: #10b98114; border: 1px solid #10b98140; color: var(--emerald-light);
+  font-weight: 700; font-family: var(--font-display); font-size: 0.95rem;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.partida-painel button { font-family: var(--font-body); font-size: 0.78rem; padding: 6px 12px; }
+
+.teste-resultado {
+  margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-strong);
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%;
+  font-size: 0.76rem; color: var(--text-muted);
+}
+.teste-resultado button { font-size: 0.74rem; padding: 5px 10px; }
+
 .card-sala-uno { border-color: #ef444430; }
 .card-sala-uno:hover { border-color: var(--uno-amarelo); box-shadow: 0 0 0 1px #f5c51840, 0 20px 40px -24px #000000c0; }
 .card-sala-uno .card-sala-info h4 { background: linear-gradient(90deg, var(--uno-vermelho), var(--uno-amarelo)); -webkit-background-clip: text; background-clip: text; color: transparent; }
