@@ -390,7 +390,7 @@ const cronometrosAtivos = {}; // salaId -> setInterval do relógio local
 const FIREBASE_DISPONIVEL = () =>
   typeof firebase !== 'undefined' &&
   typeof FIREBASE_CONFIG !== 'undefined' &&
-  FIREBASE_CONFIG.apiKey !== 'AIzaSyDfh8xO6khU15_ut3AhEkz-eQ8cOQVGovI';
+  FIREBASE_CONFIG.apiKey !== 'COLE_AQUI_SUA_API_KEY';
 
 const iniciarFirebase = () => {
   if (!FIREBASE_DISPONIVEL()) return false;
@@ -480,6 +480,7 @@ const atualizarPainelPartida = (salaId, dadosSala) => {
     const tick = () => {
       const restanteMs = (dadosSala.inicioEm ?? Date.now()) - Date.now();
       const restanteS = Math.max(0, Math.ceil(restanteMs / 1000));
+      painel.classList.toggle('urgente', restanteS <= 3);
       painel.innerHTML = `<i class="fa-solid fa-hourglass-half"></i> Começando o jogo em ${restanteS}s...`;
       if (restanteMs <= 0) {
         pararCronometroSala(salaId);
@@ -496,6 +497,7 @@ const atualizarPainelPartida = (salaId, dadosSala) => {
       const restanteMs = (prazoEm ?? Date.now()) - Date.now();
       const restanteS = Math.max(0, Math.ceil(restanteMs / 1000));
       const quem = souEu ? 'Sua vez!' : 'Vez do oponente';
+      painel.classList.toggle('urgente', souEu && restanteS <= 3);
       painel.innerHTML = `
         <i class="fa-solid fa-clock"></i> ${quem} — ${restanteS}s
         ${souEu ? `<button class="btn-verde" style="margin-left:10px;" onclick="passarTurno('${salaId}')"><i class="fa-solid fa-play"></i> Fazer Jogada</button>` : ''}
