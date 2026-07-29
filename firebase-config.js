@@ -12,12 +12,12 @@
    não de esconder esse objeto).
    ================================================================ */
 
-const FIREBASE_CONFIG = {
-  apiKey: 'COLE_AQUI_SUA_API_KEY',
-  authDomain: 'SEU-PROJETO.firebaseapp.com',
-  databaseURL: 'https://SEU-PROJETO-default-rtdb.firebaseio.com',
-  projectId: 'SEU-PROJETO',
-  storageBucket: 'SEU-PROJETO.appspot.com',
-  messagingSenderId: 'SEU_SENDER_ID',
-  appId: 'SEU_APP_ID',
+const firebaseConfig = {
+  apiKey: "AIzaSyDfh8xO6khU15_ut3AhEkz-eQ8cOQVGovI",
+  authDomain: "habilidade-que-vence-dd7be.firebaseapp.com",
+  databaseURL: "https://habilidade-que-vence-dd7be-default-rtdb.firebaseio.com",
+  projectId: "habilidade-que-vence-dd7be",
+  storageBucket: "habilidade-que-vence-dd7be.firebasestorage.app",
+  messagingSenderId: "316864947093",
+  appId: "1:316864947093:web:0aa88afd3e455d5e750c9c"
 };
