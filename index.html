@@ -113,6 +113,12 @@
                                         </span>
                                         <span class="progresso-sala-nota" id="nota-sala-1">Aguardando jogadores reais entrarem.</span>
                                     </div>
+                                    <div class="partida-painel" id="partida-painel-1" hidden></div>
+                                    <div class="teste-resultado">
+                                        <span>🧪 Teste:</span>
+                                        <button class="btn-verde" onclick="processarResultadoPartida('1', true)">Simular Vitória</button>
+                                        <button class="btn-perigo" onclick="processarResultadoPartida('1', false)">Simular Derrota</button>
+                                    </div>
                                 </div>
                                 <button onclick="entrarNaSala('1')" id="btn-entrar-1" class="btn-primario btn-entrar-sala">
                                     <i class="fa-solid fa-play"></i> Entrar na Partida (R$ 0,50)
@@ -136,6 +142,12 @@
                                         </span>
                                         <span class="progresso-sala-nota" id="nota-sala-2">Aguardando jogadores reais entrarem.</span>
                                     </div>
+                                    <div class="partida-painel" id="partida-painel-2" hidden></div>
+                                    <div class="teste-resultado">
+                                        <span>🧪 Teste:</span>
+                                        <button class="btn-verde" onclick="processarResultadoPartida('2', true)">Simular Vitória</button>
+                                        <button class="btn-perigo" onclick="processarResultadoPartida('2', false)">Simular Derrota</button>
+                                    </div>
                                 </div>
                                 <button onclick="entrarNaSala('2')" id="btn-entrar-2" class="btn-primario btn-entrar-sala">
                                     <i class="fa-solid fa-play"></i> Entrar na Partida (R$ 1,00)
@@ -158,6 +170,12 @@
                                             <i class="fa-solid fa-circle"></i> Sala aberta
                                         </span>
                                         <span class="progresso-sala-nota" id="nota-sala-3">Aguardando jogadores reais entrarem.</span>
+                                    </div>
+                                    <div class="partida-painel" id="partida-painel-3" hidden></div>
+                                    <div class="teste-resultado">
+                                        <span>🧪 Teste:</span>
+                                        <button class="btn-verde" onclick="processarResultadoPartida('3', true)">Simular Vitória</button>
+                                        <button class="btn-perigo" onclick="processarResultadoPartida('3', false)">Simular Derrota</button>
                                     </div>
                                 </div>
                                 <button onclick="entrarNaSala('3')" id="btn-entrar-3" class="btn-primario btn-entrar-sala">
@@ -388,6 +406,10 @@
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
