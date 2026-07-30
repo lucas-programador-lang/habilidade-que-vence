@@ -73,7 +73,7 @@ const fazerCadastro = (event) => {
     return;
   }
 
-  if (senha.length < 6) {
+  if (senha.trim().length < 6) {
     mostrarToast('A senha precisa ter pelo menos 6 caracteres.', 'erro');
     return;
   }
@@ -108,7 +108,7 @@ const garantirModalRecuperacao = () => {
       <div class="modal-header">
         <i class="fa-solid fa-key modal-header-icon"></i>
         <h2>Recuperar senha</h2>
-        <span class="fechar" role="button" aria-label="Fechar">&times;</span>
+        <span class="fechar" role="button" tabindex="0" aria-label="Fechar">&times;</span>
       </div>
       <p class="confirm-mensagem">Digite o e-mail cadastrado para receber as instruções de recuperação.</p>
       <div class="input-icon-group">
@@ -123,9 +123,17 @@ const garantirModalRecuperacao = () => {
 
   document.body.appendChild(overlay);
 
-  overlay.querySelector('.fechar').addEventListener('click', () => fecharModal(ID_MODAL_RECUPERACAO));
+  const fecharComTeclado = (evento) => {
+    if (evento.key === 'Enter' || evento.key === ' ') {
+      evento.preventDefault();
+      fecharModal(ID_MODAL_RECUPERACAO);
+    }
+  };
 
-  overlay.querySelector('#btn-enviar-recuperacao').addEventListener('click', () => {
+  overlay.querySelector('.fechar').addEventListener('click', () => fecharModal(ID_MODAL_RECUPERACAO));
+  overlay.querySelector('.fechar').addEventListener('keydown', fecharComTeclado);
+
+  const enviarRecuperacao = () => {
     const campoEmail = overlay.querySelector('#input-email-recuperacao');
     const { value: email } = campoEmail;
 
@@ -138,6 +146,11 @@ const garantirModalRecuperacao = () => {
     mostrarToast('Instruções de recuperação enviadas para o seu e-mail!', 'sucesso');
     campoEmail.value = '';
     fecharModal(ID_MODAL_RECUPERACAO);
+  };
+
+  overlay.querySelector('#btn-enviar-recuperacao').addEventListener('click', enviarRecuperacao);
+  overlay.querySelector('#input-email-recuperacao').addEventListener('keydown', (evento) => {
+    if (evento.key === 'Enter') enviarRecuperacao();
   });
 
   return overlay;
