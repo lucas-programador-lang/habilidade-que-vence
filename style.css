@@ -161,10 +161,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, label:focus-visible 
 
 .sidebar {
   position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-largura);
-  background: linear-gradient(180deg, var(--bg-elevated) 0%, #04060d 100%);
+  background: linear-gradient(180deg, var(--bg-elevated) 0%, #03050c 100%);
   border-right: 1px solid var(--border);
-  display: flex; flex-direction: column; gap: 2rem;
-  padding: 1.6rem 1.1rem; z-index: 60;
+  display: flex; flex-direction: column;
+  padding: 1.6rem 1.1rem 1.4rem; z-index: 60;
 }
 
 .sidebar::after {
@@ -173,14 +173,24 @@ a:focus-visible, button:focus-visible, input:focus-visible, label:focus-visible 
   opacity: 0.4;
 }
 
-.sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 0 6px; }
-.logo-icon { color: var(--ciano-light); font-size: 1.3rem; filter: drop-shadow(0 0 6px var(--ciano-glow)); }
+.sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 0 6px 1.4rem; }
+.logo-icon {
+  color: var(--ciano-light); font-size: 1.15rem; width: 34px; height: 34px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; border-radius: 10px;
+  background: radial-gradient(circle, #00f2fe1c 0%, transparent 70%);
+  border: 1px solid #00f2fe30; filter: drop-shadow(0 0 6px var(--ciano-glow));
+}
 
 .sidebar-logo-texto, .logo h1 {
-  font-family: var(--font-display); font-weight: 700; font-size: 1.12rem; letter-spacing: 0.01em;
+  font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; letter-spacing: 0.01em;
   background: linear-gradient(120deg, #ffffff 0%, var(--ciano-light) 48%, var(--gold-light) 100%);
   -webkit-background-clip: text; background-clip: text; color: transparent;
-  line-height: 1.25;
+  line-height: 1.2;
+}
+
+.sidebar-divisor {
+  height: 1px; margin: 0 6px 1.3rem;
+  background: linear-gradient(90deg, var(--border) 0%, var(--border-strong) 50%, transparent 100%);
 }
 
 .nav-toggle-input { display: none; }
@@ -194,23 +204,27 @@ a:focus-visible, button:focus-visible, input:focus-visible, label:focus-visible 
 .nav-toggle-label i { transition: var(--transition); }
 
 /* --- Navegação em abas isoladas --- */
-.nav-links { display: flex; flex-direction: column; gap: 4px; }
+.nav-links { display: flex; flex-direction: column; gap: 6px; }
 
 .nav-links button {
-  display: flex; align-items: center; gap: 11px; justify-content: flex-start;
-  padding: 12px 14px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; gap: 13px; justify-content: flex-start;
+  padding: 12px 14px; border-radius: 12px;
   color: var(--text-secondary); background: none; text-decoration: none;
-  font-size: 0.88rem; font-weight: 600; transition: var(--transition);
+  font-size: 0.87rem; font-weight: 600; transition: transform 0.22s var(--ease), background 0.22s var(--ease), color 0.22s var(--ease);
   position: relative; box-shadow: none; width: 100%;
 }
 
-.nav-links button i { color: var(--ciano-light); font-size: 0.9rem; width: 18px; text-align: center; }
-.nav-links button:hover { color: var(--text-primary); background: var(--surface); transform: none; filter: none; }
+.nav-links button i {
+  color: var(--text-muted); font-size: 0.92rem; width: 20px; text-align: center;
+  transition: var(--transition);
+}
+.nav-links button:hover { color: var(--text-primary); background: var(--surface); transform: translateX(2px); filter: none; }
+.nav-links button:hover i { color: var(--ciano-light); }
 
 .nav-links button.ativo {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  color: var(--text-primary); font-weight: 700;
+  background: linear-gradient(90deg, #00f2fe14 0%, rgba(255,255,255,0.03) 100%);
+  box-shadow: inset 0 0 0 1px #00f2fe2a, 0 8px 20px -12px #00f2fe30;
 }
 .nav-links button.ativo i { color: var(--ciano-light); filter: drop-shadow(0 0 6px var(--ciano-glow)); }
 .nav-links button.ativo::before {
@@ -220,7 +234,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, label:focus-visible 
   box-shadow: 0 0 12px var(--ciano-glow), 0 0 12px var(--emerald-glow);
 }
 
-.sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+.sidebar-footer {
+  margin-top: auto; display: flex; flex-direction: column; gap: 8px;
+  padding-top: 1.2rem; border-top: 1px solid var(--border);
+}
 .sidebar-footer a span { white-space: nowrap; }
 
 /* ============================================================
