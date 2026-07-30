@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <canvas id="fundo-3d" aria-hidden="true"></canvas>
     <div class="panda-watermark" aria-hidden="true"></div>
 
     <!-- Sidebar: fixa à esquerda no desktop, vira barra inferior no mobile -->
@@ -106,12 +107,14 @@
             <div class="grid-dashboard">
                 <div class="coluna-principal">
                     <section class="banner-desafio">
-                        <h2><i class="fa-solid fa-trophy"></i> Desafio da Diretoria Sra Panda!</h2>
-                        <p>Jogue contra seus aliados, mostre sua estratégia e conquiste o dinheiro acumulado! Partidas a partir de <strong>R$ 0,50</strong> (Mínimo 4 participantes reais).</p>
+                        <span class="pagina-kicker"><i class="fa-solid fa-signal"></i> Arena competitiva</span>
+                        <h2><i class="fa-solid fa-trophy"></i> O tabuleiro é seu. A vitória também.</h2>
+                        <p>Entre em uma sala, encare jogadores de verdade e mostre sua estratégia até o fim. Partidas a partir de <strong>R$ 0,50</strong>, com prêmio creditado direto no seu saldo.</p>
                     </section>
 
                     <section class="lote-partidas">
-                        <h3><i class="fa-solid fa-users"></i> Salas de Jogos Clássicos (4+ Participantes)</h3>
+                        <span class="pagina-kicker"><i class="fa-solid fa-satellite-dish"></i> Salas ao vivo</span>
+                        <h3><i class="fa-solid fa-users"></i> Escolha sua arena</h3>
 
                         <div class="salas-grid">
                             <!-- Sala 1: Uno Masters -->
@@ -121,6 +124,7 @@
                                         <h4>Uno Masters</h4>
                                         <span class="badge badge-money">Valendo em Real</span>
                                     </div>
+                                    <p class="card-sala-tagline">Reflexo rápido e a carta certa na hora certa — o clássico com adrenalina de arena.</p>
                                     <p class="card-sala-valores">
                                         <span><i class="fa-solid fa-coins"></i> Investimento: <strong>R$ 0,50</strong></span>
                                         <span><i class="fa-solid fa-trophy"></i> Prêmio: <strong>R$ 2,00</strong></span>
@@ -150,6 +154,7 @@
                                         <h4>Truco de Baralho</h4>
                                         <span class="badge badge-money">Valendo em Real</span>
                                     </div>
+                                    <p class="card-sala-tagline">Blefe, leitura de jogo e a malandragem do baralho brasileiro.</p>
                                     <p class="card-sala-valores">
                                         <span><i class="fa-solid fa-coins"></i> Investimento: <strong>R$ 1,00</strong></span>
                                         <span><i class="fa-solid fa-trophy"></i> Prêmio: <strong>R$ 4,00</strong></span>
@@ -179,6 +184,7 @@
                                         <h4>Arena da Escolha</h4>
                                         <span class="badge badge-money">Valendo em Real</span>
                                     </div>
+                                    <p class="card-sala-tagline">A mesa mais concorrida, o maior prêmio. Para quem já provou que sabe jogar.</p>
                                     <p class="card-sala-valores">
                                         <span><i class="fa-solid fa-coins"></i> Investimento: <strong>R$ 2,00</strong></span>
                                         <span><i class="fa-solid fa-trophy"></i> Prêmio: <strong>R$ 8,00</strong></span>
@@ -206,12 +212,13 @@
 
                 <div class="coluna-lateral">
                     <section class="indicacao-container">
-                        <h3><i class="fa-solid fa-circle-info"></i> Como funciona</h3>
-                        <p style="font-size:0.88rem; line-height:1.6;">
-                            Ao entrar em uma sala, seu valor de inscrição é descontado na hora e a sala fica marcada
-                            como <strong>"Aguardando jogadores reais"</strong>. O resultado da partida (vitória ou
-                            derrota) só é decidido quando o motor de partidas em tempo real for conectado — nenhuma
-                            simulação local decide isso por você.
+                        <span class="pagina-kicker"><i class="fa-solid fa-shield-halved"></i> Transparência</span>
+                        <h3><i class="fa-solid fa-circle-info"></i> Como a fila funciona</h3>
+                        <p style="font-size:0.88rem; line-height:1.7;">
+                            Ao entrar em uma sala, o valor da inscrição é descontado na hora e ela passa pra
+                            <strong>"Aguardando jogadores reais"</strong>. Só quando a mesa completar com pessoas de
+                            verdade é que a contagem regressiva e os turnos começam — nenhuma simulação decide
+                            vitória ou derrota por você.
                         </p>
                     </section>
                 </div>
@@ -221,8 +228,9 @@
         <!-- ============== PÁGINA: CHAT ============== -->
         <section class="pagina" id="pagina-chat" data-pagina="chat">
             <div class="pagina-topo">
+                <span class="pagina-kicker"><i class="fa-solid fa-people-group"></i> Comunidade</span>
                 <h2><i class="fa-solid fa-comments"></i> Chat</h2>
-                <p>Converse com outros jogadores enquanto aguarda sua partida.</p>
+                <p>Combine estratégias, provoque o adversário ou só bata papo antes da mesa fechar.</p>
             </div>
 
             <div class="chat-shell">
@@ -241,10 +249,10 @@
                         <span class="badge badge-shield"><i class="fa-solid fa-shield-halved"></i> Anti-Fraude Ativo</span>
                     </div>
                     <div id="chat-mensagens">
-                        <div class="msg-sistema"><i class="fa-solid fa-circle-info"></i> Sistema Anti-Fraude ativado. Boa sorte aos participantes!</div>
+                        <div class="msg-sistema"><i class="fa-solid fa-circle-info"></i> Sistema antifraude ativo. Jogo limpo, boa sorte a todos!</div>
                     </div>
                     <div class="chat-input-area">
-                        <input type="text" id="input-chat" placeholder="Converse com seu oponente...">
+                        <input type="text" id="input-chat" placeholder="Escreva sua mensagem...">
                         <button onclick="enviarMensagem()" class="btn-primario">
                             <i class="fa-solid fa-paper-plane"></i> Enviar
                         </button>
@@ -256,15 +264,16 @@
         <!-- ============== PÁGINA: INDICAÇÃO ============== -->
         <section class="pagina" id="pagina-indicacao" data-pagina="indicacao">
             <div class="pagina-topo">
+                <span class="pagina-kicker"><i class="fa-solid fa-handshake"></i> Programa de parceiros</span>
                 <h2><i class="fa-solid fa-share-nodes"></i> Indicação</h2>
-                <p>Compartilhe seu link e ganhe comissão sobre os depósitos de quem você indicar.</p>
+                <p>Convide jogadores de verdade e ganhe uma fatia de cada depósito que eles fizerem.</p>
             </div>
 
             <section class="indicacao-container">
-                <h3><i class="fa-solid fa-link"></i> Seu Link de Indicação</h3>
+                <h3><i class="fa-solid fa-link"></i> Seu link de indicação</h3>
                 <p class="indicacao-destaque">
                     <span class="badge badge-money">8% de comissão</span>
-                    Compartilhe seu link e ganhe 8% de tudo o que seus indicados depositarem:
+                    Cada indicado que fizer um depósito rende 8% direto pra você.
                 </p>
                 <div class="indicacao-input-row">
                     <input type="text" id="link-afiliado" readonly value="https://habilidadequevence.com/register.html?ref=USER123">
@@ -425,6 +434,8 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="fundo-3d.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
